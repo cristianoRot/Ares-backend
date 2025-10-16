@@ -7,6 +7,8 @@ Un backend semplice costruito con Node.js ed Express per gestire API REST.
 - Server Express configurato
 - CORS abilitato
 - Gestione JSON
+- Integrazione con Firebase/Firestore
+- CRUD completo per Firestore collections
 - Endpoint di esempio pronti all'uso
 
 ## 📋 Endpoint Disponibili
@@ -63,6 +65,107 @@ Invia dati al server
     "message": "Messaggio",
     "receivedAt": "2025-10-16T..."
   }
+}
+```
+
+---
+
+## 🔥 Endpoint Firebase/Firestore
+
+### GET /collection/:collectionName
+Ottieni tutti i documenti da una collection
+
+**Esempio:** `GET /collection/users`
+
+**Risposta:**
+```json
+{
+  "success": true,
+  "count": 2,
+  "data": [
+    { "id": "doc1", "name": "Mario", "email": "mario@example.com" },
+    { "id": "doc2", "name": "Luigi", "email": "luigi@example.com" }
+  ]
+}
+```
+
+### GET /collection/:collectionName/:docId
+Ottieni un singolo documento
+
+**Esempio:** `GET /collection/users/doc1`
+
+**Risposta:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "doc1",
+    "name": "Mario",
+    "email": "mario@example.com"
+  }
+}
+```
+
+### POST /collection/:collectionName
+Crea un nuovo documento
+
+**Esempio:** `POST /collection/users`
+
+**Body:**
+```json
+{
+  "name": "Mario",
+  "email": "mario@example.com"
+}
+```
+
+**Risposta:**
+```json
+{
+  "success": true,
+  "message": "Documento creato con successo",
+  "id": "generatedId123",
+  "data": {
+    "name": "Mario",
+    "email": "mario@example.com",
+    "createdAt": "2025-10-16T...",
+    "updatedAt": "2025-10-16T..."
+  }
+}
+```
+
+### PUT /collection/:collectionName/:docId
+Aggiorna un documento esistente
+
+**Esempio:** `PUT /collection/users/doc1`
+
+**Body:**
+```json
+{
+  "name": "Mario Rossi"
+}
+```
+
+**Risposta:**
+```json
+{
+  "success": true,
+  "message": "Documento aggiornato con successo",
+  "id": "doc1"
+}
+```
+
+### DELETE /collection/:collectionName/:docId
+Elimina un documento
+
+**Esempio:** `DELETE /collection/users/doc1`
+
+**Risposta:**
+```json
+{
+  "success": true,
+  "message": "Documento eliminato con successo",
+  "id": "doc1"
 }
 ```
 
@@ -131,11 +234,50 @@ Per usare il tuo dominio `aresofficial.net`:
    - `https://api.aresofficial.net/status`
    - `https://api.aresofficial.net/data`
 
+## 🔥 Configurazione Firebase
+
+### 1. Ottieni le credenziali Firebase
+
+1. Vai alla [Console Firebase](https://console.firebase.google.com/)
+2. Seleziona il tuo progetto
+3. Vai su **Impostazioni Progetto** (icona ingranaggio) → **Account di servizio**
+4. Clicca su **Genera nuova chiave privata**
+5. Scarica il file JSON
+
+### 2. Configurazione per Produzione (Render)
+
+Su Render, aggiungi queste variabili d'ambiente:
+
+```
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour_Private_Key_Here\n-----END PRIVATE KEY-----\n"
+```
+
+**IMPORTANTE:** Copia la private key esattamente come appare nel file JSON, inclusi `\n` per le nuove righe.
+
+### 3. Configurazione per Sviluppo Locale
+
+**Opzione A:** Usa le variabili d'ambiente (come sopra) nel file `.env`
+
+**Opzione B:** Usa il file JSON:
+1. Rinomina il file scaricato in `serviceAccountKey.json`
+2. Mettilo nella root del progetto
+3. Aggiungi nel file `.env`:
+```
+FIREBASE_SERVICE_ACCOUNT_PATH=./serviceAccountKey.json
+```
+
+⚠️ **NON committare mai il file `serviceAccountKey.json` su Git!** (È già nel `.gitignore`)
+
+---
+
 ## 📦 Dipendenze
 
 - **express** - Framework web
 - **cors** - Gestione CORS
 - **dotenv** - Gestione variabili d'ambiente
+- **firebase-admin** - SDK Firebase per Node.js
 
 ## 📝 Licenza
 
