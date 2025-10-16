@@ -23,22 +23,22 @@ app.get('/', (req, res) => {
     version: '1.0.0',
     baseUrl: baseUrl,
     endpoints: [
-      'GET /api/name - Ottieni il nome',
-      'GET /api/status - Stato del server',
-      'POST /api/data - Invia dati'
+      'GET /name - Ottieni il nome',
+      'GET /status - Stato del server',
+      'POST /data - Invia dati'
     ]
   });
 });
 
 // API: Ottieni il nome
-app.get('/api/name', (req, res) => {
+app.get('/name', (req, res) => {
   res.json({
     name: 'Ares'
   });
 });
 
 // API: Verifica lo stato del server
-app.get('/api/status', (req, res) => {
+app.get('/status', (req, res) => {
   res.json({
     status: 'online',
     timestamp: new Date().toISOString(),
@@ -47,7 +47,7 @@ app.get('/api/status', (req, res) => {
 });
 
 // API: Ricevi dati
-app.post('/api/data', (req, res) => {
+app.post('/data', (req, res) => {
   const { name, message } = req.body;
   
   if (!name || !message) {

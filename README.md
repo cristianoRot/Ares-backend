@@ -23,7 +23,7 @@ Restituisce informazioni generali sull'API
 }
 ```
 
-### GET /api/name
+### GET /name
 Restituisce il nome del progetto
 
 ```json
@@ -32,7 +32,7 @@ Restituisce il nome del progetto
 }
 ```
 
-### GET /api/status
+### GET /status
 Verifica lo stato del server
 
 ```json
@@ -43,7 +43,7 @@ Verifica lo stato del server
 }
 ```
 
-### POST /api/data
+### POST /data
 Invia dati al server
 
 **Body richiesto:**
@@ -127,8 +127,9 @@ Per usare il tuo dominio `aresofficial.net`:
 
 4. Le tue API saranno disponibili su:
    - `https://api.aresofficial.net/`
-   - `https://api.aresofficial.net/api/status`
-   - `https://api.aresofficial.net/api/data`
+   - `https://api.aresofficial.net/name`
+   - `https://api.aresofficial.net/status`
+   - `https://api.aresofficial.net/data`
 
 ## 📦 Dipendenze
 
