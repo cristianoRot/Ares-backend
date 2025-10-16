@@ -18,7 +18,17 @@ Restituisce informazioni generali sull'API
 {
   "message": "Benvenuto all'API di Ares",
   "version": "1.0.0",
+  "baseUrl": "https://api.aresofficial.net",
   "endpoints": [...]
+}
+```
+
+### GET /api/name
+Restituisce il nome del progetto
+
+```json
+{
+  "name": "Ares"
 }
 ```
 
