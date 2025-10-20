@@ -41,13 +41,21 @@ const firebaseAdmin = initializeFirebase();
 // Ottieni Firestore database
 const getDb = () => {
   if (!firebaseAdmin) {
-    throw new Error('Firebase non è stato inizializzato correttamente');
+    return null;
   }
-  return firebaseAdmin.firestore();
+  try {
+    return firebaseAdmin.firestore();
+  } catch (error) {
+    console.error('❌ Errore nell\'accesso a Firestore:', error.message);
+    return null;
+  }
 };
+
+// Esporta solo se Firebase è inizializzato correttamente
+const db = firebaseAdmin ? getDb() : null;
 
 module.exports = {
   admin: firebaseAdmin,
-  db: firebaseAdmin ? getDb() : null
+  db: db
 };
 

@@ -249,13 +249,31 @@ ISC
 
 ---
 
+## 🚀 Deploy su Render
+
+Per deployare questo backend su Render:
+
+1. **Collega il repository GitHub** a Render
+2. **Configura le variabili d'ambiente** (vedi `RENDER_DEPLOY.md`)
+3. **Deploy automatico** al push su main
+
+**Guida completa:** Vedi [RENDER_DEPLOY.md](./RENDER_DEPLOY.md)
+
+**Variabili d'ambiente richieste:**
+- `FIREBASE_PROJECT_ID`
+- `FIREBASE_CLIENT_EMAIL`  
+- `FIREBASE_PRIVATE_KEY`
+
+---
+
 ## 🆘 Supporto
 
 Per problemi o domande:
 1. Verifica la documentazione in `API_DOCUMENTATION.md`
 2. Controlla la configurazione Firebase in `FIREBASE_SETUP.md`
-3. Controlla i log del server per errori dettagliati
-4. Contatta il team di sviluppo
+3. Per problemi di deploy su Render, vedi `RENDER_DEPLOY.md`
+4. Controlla i log del server per errori dettagliati
+5. Contatta il team di sviluppo
 
 ---
 
