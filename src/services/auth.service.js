@@ -1,6 +1,6 @@
 /**
  * Authentication Service
- * Gestisce tutta la logica di autenticazione Firebase
+ * Handles all Firebase authentication business logic
  */
 
 const { admin, db } = require('../../config/firebase');
@@ -8,22 +8,22 @@ const UserModel = require('../models/User.model');
 
 class AuthService {
   /**
-   * Registra un nuovo utente con email, password e username
-   * Replica la logica di FirebaseAuthManager.Register() da Unity
+   * Register a new user with email, password and username
+   * Replicates the logic from FirebaseAuthManager.Register() in Unity
    */
   async register(email, password, username) {
     try {
-      // 1. Crea l'utente in Firebase Auth
+      // 1. Create user in Firebase Auth
       const userRecord = await admin.auth().createUser({
         email: email,
         password: password,
         displayName: username
       });
 
-      // 2. Salva l'username nella collection "usernames" (per unicità)
+      // 2. Save username in "usernames" collection (for uniqueness)
       await this.saveUsername(username, userRecord.uid);
 
-      // 3. Crea il profilo utente nella collection "users"
+      // 3. Create user profile in "users" collection
       const userProfile = await this.createUserProfile(userRecord.uid, username, email);
 
       return {
@@ -41,23 +41,23 @@ class AuthService {
   }
 
   /**
-   * Salva l'username nella collection "usernames"
-   * Permette di verificare unicità e fare lookup username -> uid
+   * Save username in "usernames" collection
+   * Allows checking uniqueness and username -> uid lookup
    */
   async saveUsername(username, uid) {
     try {
       const usernameRef = db.collection('usernames').doc(username);
       
-      // Verifica se username è già preso
+      // Check if username is already taken
       const usernameDoc = await usernameRef.get();
       if (usernameDoc.exists) {
         throw {
           code: 'auth/username-already-exists',
-          message: 'Username già in uso'
+          message: 'Username is already taken'
         };
       }
 
-      // Salva il mapping username -> uid
+      // Save username -> uid mapping
       await usernameRef.set({
         uid: uid,
         createdAt: new Date().toISOString()
@@ -70,8 +70,8 @@ class AuthService {
   }
 
   /**
-   * Crea il profilo iniziale dell'utente nella collection "users"
-   * Replica la logica di CreateNewProfileData() da Unity
+   * Create initial user profile in "users" collection
+   * Replicates the logic from CreateNewProfileData() in Unity
    */
   async createUserProfile(uid, username, email) {
     try {
@@ -100,7 +100,7 @@ class AuthService {
   }
 
   /**
-   * Ottiene un utente per UID
+   * Get user by UID
    */
   async getUserByUid(uid) {
     try {
@@ -112,11 +112,11 @@ class AuthService {
   }
 
   /**
-   * Ottiene un utente per username
+   * Get user by username
    */
   async getUserByUsername(username) {
     try {
-      // Prima trova l'uid dal username
+      // First find uid from username
       const usernameDoc = await db.collection('usernames').doc(username).get();
       if (!usernameDoc.exists) {
         return null;
@@ -130,54 +130,53 @@ class AuthService {
   }
 
   /**
-   * Elimina un utente e tutti i suoi dati
+   * Delete user and all associated data
    */
   async deleteUser(uid) {
     try {
-      // Ottieni username prima di eliminare il documento
+      // Get username before deleting the document
       const userDoc = await db.collection('users').doc(uid).get();
       if (userDoc.exists) {
         const username = userDoc.data().username;
         
-        // Elimina da Firebase Auth
+        // Delete from Firebase Auth
         await admin.auth().deleteUser(uid);
         
-        // Elimina il documento username
+        // Delete username document
         if (username) {
           await db.collection('usernames').doc(username).delete();
         }
         
-        // Elimina il profilo utente
+        // Delete user profile
         await db.collection('users').doc(uid).delete();
       }
 
-      return { success: true, message: 'Utente eliminato con successo' };
+      return { success: true, message: 'User deleted successfully' };
     } catch (error) {
       throw this.handleFirebaseError(error);
     }
   }
 
   /**
-   * Gestisce gli errori Firebase e li converte in messaggi leggibili
+   * Handle Firebase errors and convert them to readable messages
    */
   handleFirebaseError(error) {
     const errorMessages = {
-      'auth/email-already-exists': 'Email già registrata',
-      'auth/invalid-email': 'Email non valida',
-      'auth/invalid-password': 'Password troppo debole (minimo 6 caratteri)',
-      'auth/user-not-found': 'Utente non trovato',
-      'auth/username-already-exists': 'Username già in uso',
-      'auth/weak-password': 'Password troppo debole',
-      'auth/operation-not-allowed': 'Operazione non permessa',
-      'auth/uid-already-exists': 'UID già esistente'
+      'auth/email-already-exists': 'Email is already registered',
+      'auth/invalid-email': 'Invalid email address',
+      'auth/invalid-password': 'Password is too weak (minimum 6 characters)',
+      'auth/user-not-found': 'User not found',
+      'auth/username-already-exists': 'Username is already taken',
+      'auth/weak-password': 'Password is too weak',
+      'auth/operation-not-allowed': 'Operation not allowed',
+      'auth/uid-already-exists': 'UID already exists'
     };
 
     return {
       code: error.code || 'auth/unknown-error',
-      message: errorMessages[error.code] || error.message || 'Errore sconosciuto'
+      message: errorMessages[error.code] || error.message || 'Unknown error occurred'
     };
   }
 }
 
 module.exports = new AuthService();
-

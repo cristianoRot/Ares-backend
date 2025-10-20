@@ -44,7 +44,8 @@ app.use(requestLogger);
 app.get('/', (req, res) => {
   const baseUrl = process.env.BASE_URL || req.protocol + '://' + req.get('host');
   res.json({
-    message: 'Benvenuto all\'API di Ares',
+    success: true,
+    message: 'Welcome to Ares API',
     version: '2.0.0',
     baseUrl: baseUrl,
     status: 'online',
@@ -61,7 +62,10 @@ app.get('/', (req, res) => {
         name: 'GET /name'
       }
     },
-    firebaseStatus: db ? '✅ connected' : '❌ not configured',
+    firebase: {
+      status: db ? 'connected' : 'not_configured',
+      connected: db ? true : false
+    },
     timestamp: new Date().toISOString()
   });
 });
@@ -92,8 +96,11 @@ app.use('/', validateFirebase, apiRoutes);
 app.use((req, res) => {
   res.status(404).json({
     success: false,
-    error: 'Endpoint non trovato',
-    path: req.path,
+    error: {
+      code: 'ENDPOINT_NOT_FOUND',
+      message: 'The requested endpoint does not exist',
+      path: req.path
+    },
     timestamp: new Date().toISOString()
   });
 });
@@ -109,20 +116,20 @@ app.listen(PORT, () => {
   console.log('🚀 Ares Backend API');
   console.log('========================================');
   console.log(`📡 Server:        http://localhost:${PORT}`);
-  console.log(`🌍 Ambiente:      ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔥 Firebase:      ${db ? '✅ Connesso' : '❌ Non configurato'}`);
-  console.log(`⏰ Started at:    ${new Date().toLocaleString('it-IT')}`);
+  console.log(`🌍 Environment:   ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🔥 Firebase:      ${db ? '✅ Connected' : '❌ Not configured'}`);
+  console.log(`⏰ Started at:    ${new Date().toISOString()}`);
   console.log('========================================');
   console.log('');
 });
 
-// Gestione graceful shutdown
+// Graceful shutdown handling
 process.on('SIGTERM', () => {
-  console.log('SIGTERM ricevuto. Chiusura server...');
+  console.log('SIGTERM received. Shutting down gracefully...');
   process.exit(0);
 });
 
 process.on('SIGINT', () => {
-  console.log('\nSIGINT ricevuto. Chiusura server...');
+  console.log('\nSIGINT received. Shutting down gracefully...');
   process.exit(0);
 });

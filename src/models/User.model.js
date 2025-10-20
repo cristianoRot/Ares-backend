@@ -1,6 +1,6 @@
 /**
  * User Model
- * Definisce la struttura dati dell'utente in Firestore
+ * Defines the user data structure in Firestore
  */
 
 class UserModel {
@@ -22,7 +22,7 @@ class UserModel {
   }
 
   /**
-   * Converte il modello in un oggetto semplice per Firebase
+   * Convert model to plain object for Firebase
    */
   toFirestore() {
     return {
@@ -43,7 +43,7 @@ class UserModel {
   }
 
   /**
-   * Crea un'istanza UserModel da un documento Firestore
+   * Create UserModel instance from Firestore document
    */
   static fromFirestore(doc) {
     if (!doc.exists) {
@@ -57,21 +57,21 @@ class UserModel {
   }
 
   /**
-   * Valida i dati minimi richiesti per la creazione
+   * Validate minimum required data for creation
    */
   static validate(data) {
     const errors = [];
 
     if (!data.email || !this.isValidEmail(data.email)) {
-      errors.push('Email non valida');
+      errors.push('Invalid email address');
     }
 
     if (!data.username || data.username.length < 3) {
-      errors.push('Username deve essere almeno 3 caratteri');
+      errors.push('Username must be at least 3 characters');
     }
 
     if (!data.password || data.password.length < 6) {
-      errors.push('Password deve essere almeno 6 caratteri');
+      errors.push('Password must be at least 6 characters');
     }
 
     return {
@@ -81,7 +81,7 @@ class UserModel {
   }
 
   /**
-   * Valida formato email
+   * Validate email format
    */
   static isValidEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -90,4 +90,3 @@ class UserModel {
 }
 
 module.exports = UserModel;
-

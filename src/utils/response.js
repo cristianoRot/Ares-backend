@@ -1,13 +1,13 @@
 /**
  * Response Utilities
- * Fornisce helper per creare risposte HTTP standardizzate
+ * Provides helpers for creating standardized HTTP responses
  */
 
 class ResponseUtil {
   /**
-   * Risposta di successo
+   * Success response
    */
-  static success(res, data, message = 'Operazione completata con successo', statusCode = 200) {
+  static success(res, data, message = 'Operation completed successfully', statusCode = 200) {
     return res.status(statusCode).json({
       success: true,
       message,
@@ -17,62 +17,75 @@ class ResponseUtil {
   }
 
   /**
-   * Risposta di errore
+   * Error response
    */
   static error(res, message, statusCode = 500, errorCode = null) {
     return res.status(statusCode).json({
       success: false,
-      error: message,
-      ...(errorCode && { code: errorCode }),
+      error: {
+        code: errorCode || 'ERROR',
+        message: message
+      },
       timestamp: new Date().toISOString()
     });
   }
 
   /**
-   * Risposta di validazione fallita
+   * Validation error response
    */
   static validationError(res, errors) {
     return res.status(400).json({
       success: false,
-      error: 'Errore di validazione',
-      errors,
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'Validation failed',
+        details: errors
+      },
       timestamp: new Date().toISOString()
     });
   }
 
   /**
-   * Risposta di risorsa non trovata
+   * Not found response
    */
-  static notFound(res, message = 'Risorsa non trovata') {
+  static notFound(res, message = 'Resource not found') {
     return res.status(404).json({
       success: false,
-      error: message,
+      error: {
+        code: 'NOT_FOUND',
+        message: message
+      },
       timestamp: new Date().toISOString()
     });
   }
 
   /**
-   * Risposta di non autorizzato
+   * Unauthorized response
    */
-  static unauthorized(res, message = 'Non autorizzato') {
+  static unauthorized(res, message = 'Unauthorized access') {
     return res.status(401).json({
       success: false,
-      error: message,
+      error: {
+        code: 'UNAUTHORIZED',
+        message: message
+      },
       timestamp: new Date().toISOString()
     });
   }
 
   /**
-   * Risposta di forbidden
+   * Forbidden response
    */
-  static forbidden(res, message = 'Accesso negato') {
+  static forbidden(res, message = 'Access denied') {
     return res.status(403).json({
       success: false,
-      error: message,
+      error: {
+        code: 'FORBIDDEN',
+        message: message
+      },
       timestamp: new Date().toISOString()
     });
   }
 }
 
 module.exports = ResponseUtil;
-

@@ -1,11 +1,11 @@
 const admin = require('firebase-admin');
 
-// Inizializza Firebase Admin SDK
+// Initialize Firebase Admin SDK
 const initializeFirebase = () => {
   try {
-    // Controlla se Firebase è già inizializzato
+    // Check if Firebase is already initialized
     if (admin.apps.length === 0) {
-      // Opzione 1: Usa le variabili d'ambiente (consigliato per produzione)
+      // Option 1: Use environment variables (recommended for production)
       if (process.env.FIREBASE_PROJECT_ID) {
         admin.initializeApp({
           credential: admin.credential.cert({
@@ -14,31 +14,31 @@ const initializeFirebase = () => {
             privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
           })
         });
-        console.log('✅ Firebase inizializzato con variabili d\'ambiente');
+        console.log('✅ Firebase initialized with environment variables');
       } 
-      // Opzione 2: Usa il file serviceAccountKey.json (per sviluppo locale)
+      // Option 2: Use serviceAccountKey.json file (for local development)
       else if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
         const serviceAccount = require(process.env.FIREBASE_SERVICE_ACCOUNT_PATH);
         admin.initializeApp({
           credential: admin.credential.cert(serviceAccount)
         });
-        console.log('✅ Firebase inizializzato con service account file');
+        console.log('✅ Firebase initialized with service account file');
       } else {
-        console.warn('⚠️  Firebase non configurato - aggiungi le credenziali nelle variabili d\'ambiente');
+        console.warn('⚠️  Firebase not configured - add credentials in environment variables');
       }
     }
 
     return admin;
   } catch (error) {
-    console.error('❌ Errore nell\'inizializzazione di Firebase:', error.message);
+    console.error('❌ Error initializing Firebase:', error.message);
     return null;
   }
 };
 
-// Inizializza Firebase
+// Initialize Firebase
 const firebaseAdmin = initializeFirebase();
 
-// Ottieni Firestore database
+// Get Firestore database
 const getDb = () => {
   if (!firebaseAdmin) {
     return null;
@@ -46,16 +46,15 @@ const getDb = () => {
   try {
     return firebaseAdmin.firestore();
   } catch (error) {
-    console.error('❌ Errore nell\'accesso a Firestore:', error.message);
+    console.error('❌ Error accessing Firestore:', error.message);
     return null;
   }
 };
 
-// Esporta solo se Firebase è inizializzato correttamente
+// Export only if Firebase is properly initialized
 const db = firebaseAdmin ? getDb() : null;
 
 module.exports = {
   admin: firebaseAdmin,
   db: db
 };
-

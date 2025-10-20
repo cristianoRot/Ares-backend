@@ -1,36 +1,46 @@
 /**
  * Global Error Handler Middleware
- * Gestisce tutti gli errori dell'applicazione
+ * Handles all application errors
  */
 
 const errorHandler = (err, req, res, next) => {
   console.error('Error:', err);
 
-  // Errore di validazione
+  // Validation error
   if (err.name === 'ValidationError') {
     return res.status(400).json({
       success: false,
-      error: 'Errore di validazione',
-      details: err.message
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'Validation failed',
+        details: err.message
+      },
+      timestamp: new Date().toISOString()
     });
   }
 
-  // Errore Firebase
+  // Firebase error
   if (err.code && err.code.startsWith('auth/')) {
     return res.status(400).json({
       success: false,
-      error: err.message,
-      code: err.code
+      error: {
+        code: err.code,
+        message: err.message
+      },
+      timestamp: new Date().toISOString()
     });
   }
 
-  // Errore generico del server
+  // Generic server error
   res.status(err.status || 500).json({
     success: false,
-    error: err.message || 'Errore interno del server',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
+    error: {
+      code: 'INTERNAL_ERROR',
+      message: err.message || 'Internal server error'
+    },
+    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
+    timestamp: new Date().toISOString()
   });
 };
 
 module.exports = errorHandler;
-

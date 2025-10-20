@@ -9,48 +9,57 @@ const UserModel = require('../models/User.model');
 class AuthController {
   /**
    * POST /auth/register
-   * Registra un nuovo utente
+   * Register a new user
    */
   async register(req, res) {
     try {
       const { email, password, username } = req.body;
 
-      // Validazione input
+      // Input validation
       const validation = UserModel.validate({ email, password, username });
       if (!validation.isValid) {
         return res.status(400).json({
           success: false,
-          errors: validation.errors
+          error: {
+            code: 'VALIDATION_ERROR',
+            message: 'Invalid input data',
+            details: validation.errors
+          },
+          timestamp: new Date().toISOString()
         });
       }
 
-      // Registra l'utente
+      // Register the user
       const result = await authService.register(email, password, username);
 
       return res.status(201).json({
         success: true,
-        message: 'Utente registrato con successo',
+        message: 'User registered successfully',
         data: {
           uid: result.user.uid,
           email: result.user.email,
           username: result.user.username,
           profile: result.user.profile.toFirestore()
-        }
+        },
+        timestamp: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Errore registrazione utente:', error);
+      console.error('User registration error:', error);
       
       return res.status(400).json({
         success: false,
-        error: error.message || 'Errore durante la registrazione',
-        code: error.code || 'auth/unknown-error'
+        error: {
+          code: error.code || 'AUTH_ERROR',
+          message: error.message || 'An error occurred during registration'
+        },
+        timestamp: new Date().toISOString()
       });
     }
   }
 
   /**
    * GET /auth/user/:uid
-   * Ottiene i dati di un utente per UID
+   * Get user data by UID
    */
   async getUserByUid(req, res) {
     try {
@@ -59,7 +68,11 @@ class AuthController {
       if (!uid) {
         return res.status(400).json({
           success: false,
-          error: 'UID richiesto'
+          error: {
+            code: 'MISSING_UID',
+            message: 'User UID is required'
+          },
+          timestamp: new Date().toISOString()
         });
       }
 
@@ -68,27 +81,36 @@ class AuthController {
       if (!user) {
         return res.status(404).json({
           success: false,
-          error: 'Utente non trovato'
+          error: {
+            code: 'USER_NOT_FOUND',
+            message: 'User not found'
+          },
+          timestamp: new Date().toISOString()
         });
       }
 
       return res.status(200).json({
         success: true,
-        data: user.toFirestore()
+        data: user.toFirestore(),
+        timestamp: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Errore recupero utente:', error);
+      console.error('Get user error:', error);
       
       return res.status(500).json({
         success: false,
-        error: 'Errore durante il recupero dell\'utente'
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: 'An error occurred while retrieving user data'
+        },
+        timestamp: new Date().toISOString()
       });
     }
   }
 
   /**
    * GET /auth/user/username/:username
-   * Ottiene i dati di un utente per username
+   * Get user data by username
    */
   async getUserByUsername(req, res) {
     try {
@@ -97,7 +119,11 @@ class AuthController {
       if (!username) {
         return res.status(400).json({
           success: false,
-          error: 'Username richiesto'
+          error: {
+            code: 'MISSING_USERNAME',
+            message: 'Username is required'
+          },
+          timestamp: new Date().toISOString()
         });
       }
 
@@ -106,27 +132,36 @@ class AuthController {
       if (!user) {
         return res.status(404).json({
           success: false,
-          error: 'Utente non trovato'
+          error: {
+            code: 'USER_NOT_FOUND',
+            message: 'User not found'
+          },
+          timestamp: new Date().toISOString()
         });
       }
 
       return res.status(200).json({
         success: true,
-        data: user.toFirestore()
+        data: user.toFirestore(),
+        timestamp: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Errore recupero utente:', error);
+      console.error('Get user error:', error);
       
       return res.status(500).json({
         success: false,
-        error: 'Errore durante il recupero dell\'utente'
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: 'An error occurred while retrieving user data'
+        },
+        timestamp: new Date().toISOString()
       });
     }
   }
 
   /**
    * DELETE /auth/user/:uid
-   * Elimina un utente
+   * Delete a user
    */
   async deleteUser(req, res) {
     try {
@@ -135,7 +170,11 @@ class AuthController {
       if (!uid) {
         return res.status(400).json({
           success: false,
-          error: 'UID richiesto'
+          error: {
+            code: 'MISSING_UID',
+            message: 'User UID is required'
+          },
+          timestamp: new Date().toISOString()
         });
       }
 
@@ -143,14 +182,19 @@ class AuthController {
 
       return res.status(200).json({
         success: true,
-        message: result.message
+        message: result.message,
+        timestamp: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Errore eliminazione utente:', error);
+      console.error('Delete user error:', error);
       
       return res.status(500).json({
         success: false,
-        error: error.message || 'Errore durante l\'eliminazione dell\'utente'
+        error: {
+          code: 'INTERNAL_ERROR',
+          message: error.message || 'An error occurred while deleting the user'
+        },
+        timestamp: new Date().toISOString()
       });
     }
   }

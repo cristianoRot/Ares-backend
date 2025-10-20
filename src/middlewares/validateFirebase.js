@@ -1,6 +1,6 @@
 /**
  * Firebase Validation Middleware
- * Verifica che Firebase sia configurato correttamente
+ * Verifies that Firebase is properly configured
  */
 
 const { db } = require('../../config/firebase');
@@ -9,8 +9,11 @@ const validateFirebase = (req, res, next) => {
   if (!db) {
     return res.status(503).json({
       success: false,
-      error: 'Database non disponibile',
-      message: 'Firebase non è configurato correttamente. Verifica le variabili d\'ambiente.'
+      error: {
+        code: 'SERVICE_UNAVAILABLE',
+        message: 'Database is not available. Firebase is not configured properly.'
+      },
+      timestamp: new Date().toISOString()
     });
   }
   
@@ -18,4 +21,3 @@ const validateFirebase = (req, res, next) => {
 };
 
 module.exports = validateFirebase;
-
