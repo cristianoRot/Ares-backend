@@ -8,7 +8,7 @@ const UserModel = require('../models/User.model');
 
 class AuthController {
   /**
-   * POST /api/auth/register
+   * POST /auth/register
    * Registra un nuovo utente
    */
   async register(req, res) {
@@ -49,7 +49,7 @@ class AuthController {
   }
 
   /**
-   * GET /api/auth/user/:uid
+   * GET /auth/user/:uid
    * Ottiene i dati di un utente per UID
    */
   async getUserByUid(req, res) {
@@ -87,7 +87,7 @@ class AuthController {
   }
 
   /**
-   * GET /api/auth/user/username/:username
+   * GET /auth/user/username/:username
    * Ottiene i dati di un utente per username
    */
   async getUserByUsername(req, res) {
@@ -125,7 +125,7 @@ class AuthController {
   }
 
   /**
-   * DELETE /api/auth/user/:uid
+   * DELETE /auth/user/:uid
    * Elimina un utente
    */
   async deleteUser(req, res) {

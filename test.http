@@ -4,20 +4,19 @@
 ###
 
 @baseUrl = http://localhost:3000
-@apiUrl = {{baseUrl}}/api
 
 ### Welcome / Info
 GET {{baseUrl}}
 
 ### Health Check
-GET {{apiUrl}}/health
+GET {{baseUrl}}/health
 
 ### ============================================
 ### AUTH ENDPOINTS
 ### ============================================
 
 ### Registra nuovo utente
-POST {{apiUrl}}/auth/register
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
@@ -27,7 +26,7 @@ Content-Type: application/json
 }
 
 ### Registra secondo utente
-POST {{apiUrl}}/auth/register
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
@@ -37,7 +36,7 @@ Content-Type: application/json
 }
 
 ### Test validazione - Email mancante (dovrebbe fallire)
-POST {{apiUrl}}/auth/register
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
@@ -46,7 +45,7 @@ Content-Type: application/json
 }
 
 ### Test validazione - Password troppo corta (dovrebbe fallire)
-POST {{apiUrl}}/auth/register
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
@@ -56,7 +55,7 @@ Content-Type: application/json
 }
 
 ### Test validazione - Username troppo corto (dovrebbe fallire)
-POST {{apiUrl}}/auth/register
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
@@ -66,16 +65,16 @@ Content-Type: application/json
 }
 
 ### Ottieni utente per UID (sostituisci YOUR_USER_UID con un UID reale)
-GET {{apiUrl}}/auth/user/YOUR_USER_UID
+GET {{baseUrl}}/auth/user/YOUR_USER_UID
 
 ### Ottieni utente per username
-GET {{apiUrl}}/auth/user/username/testplayer
+GET {{baseUrl}}/auth/user/username/testplayer
 
 ### Ottieni utente per username (utente non esistente)
-GET {{apiUrl}}/auth/user/username/nonexistent
+GET {{baseUrl}}/auth/user/username/nonexistent
 
 ### Elimina utente (sostituisci YOUR_USER_UID con un UID reale)
-DELETE {{apiUrl}}/auth/user/YOUR_USER_UID
+DELETE {{baseUrl}}/auth/user/YOUR_USER_UID
 
 ### ============================================
 ### LEGACY ENDPOINTS

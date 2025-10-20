@@ -8,7 +8,7 @@ const router = express.Router();
 const authController = require('../controllers/auth.controller');
 
 /**
- * @route   POST /api/auth/register
+ * @route   POST /auth/register
  * @desc    Registra un nuovo utente
  * @access  Public
  * @body    { email, password, username }
@@ -16,21 +16,21 @@ const authController = require('../controllers/auth.controller');
 router.post('/register', (req, res) => authController.register(req, res));
 
 /**
- * @route   GET /api/auth/user/:uid
+ * @route   GET /auth/user/:uid
  * @desc    Ottiene un utente per UID
  * @access  Public (TODO: proteggere con auth middleware)
  */
 router.get('/user/:uid', (req, res) => authController.getUserByUid(req, res));
 
 /**
- * @route   GET /api/auth/user/username/:username
+ * @route   GET /auth/user/username/:username
  * @desc    Ottiene un utente per username
  * @access  Public (TODO: proteggere con auth middleware)
  */
 router.get('/user/username/:username', (req, res) => authController.getUserByUsername(req, res));
 
 /**
- * @route   DELETE /api/auth/user/:uid
+ * @route   DELETE /auth/user/:uid
  * @desc    Elimina un utente
  * @access  Public (TODO: proteggere con auth middleware)
  */

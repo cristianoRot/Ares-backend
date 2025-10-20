@@ -49,14 +49,12 @@ app.get('/', (req, res) => {
     baseUrl: baseUrl,
     status: 'online',
     endpoints: {
-      api: {
-        health: 'GET /api/health',
-        auth: {
-          register: 'POST /api/auth/register',
-          getUser: 'GET /api/auth/user/:uid',
-          getUserByUsername: 'GET /api/auth/user/username/:username',
-          deleteUser: 'DELETE /api/auth/user/:uid'
-        }
+      health: 'GET /health',
+      auth: {
+        register: 'POST /auth/register',
+        getUser: 'GET /auth/user/:uid',
+        getUserByUsername: 'GET /auth/user/username/:username',
+        deleteUser: 'DELETE /auth/user/:uid'
       },
       legacy: {
         status: 'GET /status',
@@ -85,8 +83,8 @@ app.get('/status', (req, res) => {
   });
 });
 
-// Mount API routes con validazione Firebase
-app.use('/api', validateFirebase, apiRoutes);
+// Mount API routes direttamente sulla root con validazione Firebase
+app.use('/', validateFirebase, apiRoutes);
 
 // ========== ERROR HANDLING ==========
 

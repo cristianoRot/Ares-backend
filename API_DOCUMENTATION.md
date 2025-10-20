@@ -117,7 +117,7 @@ Restituisce informazioni sull'API e lista degli endpoints disponibili.
 ---
 
 ### 2. Health Check
-**GET** `/api/health`
+**GET** `/health`
 
 Verifica lo stato dell'API.
 
@@ -133,7 +133,7 @@ Verifica lo stato dell'API.
 ---
 
 ### 3. Registrazione Utente
-**POST** `/api/auth/register`
+**POST** `/auth/register`
 
 Crea un nuovo utente con email, password e username.
 
@@ -197,7 +197,7 @@ Crea un nuovo utente con email, password e username.
 ---
 
 ### 4. Ottieni Utente per UID
-**GET** `/api/auth/user/:uid`
+**GET** `/auth/user/:uid`
 
 Recupera i dati di un utente tramite il suo UID Firebase.
 
@@ -229,7 +229,7 @@ Recupera i dati di un utente tramite il suo UID Firebase.
 ---
 
 ### 5. Ottieni Utente per Username
-**GET** `/api/auth/user/username/:username`
+**GET** `/auth/user/username/:username`
 
 Recupera i dati di un utente tramite il suo username.
 
@@ -253,7 +253,7 @@ Recupera i dati di un utente tramite il suo username.
 ---
 
 ### 6. Elimina Utente
-**DELETE** `/api/auth/user/:uid`
+**DELETE** `/auth/user/:uid`
 
 Elimina un utente e tutti i suoi dati da Firebase Auth e Firestore.
 
@@ -276,7 +276,7 @@ Elimina un utente e tutti i suoi dati da Firebase Auth e Firestore.
 
 #### 1. Registra un nuovo utente
 ```bash
-curl -X POST http://localhost:3000/api/auth/register \
+curl -X POST http://localhost:3000/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@example.com",
@@ -287,17 +287,17 @@ curl -X POST http://localhost:3000/api/auth/register \
 
 #### 2. Ottieni utente per UID
 ```bash
-curl http://localhost:3000/api/auth/user/FIREBASE_UID
+curl http://localhost:3000/auth/user/FIREBASE_UID
 ```
 
 #### 3. Ottieni utente per username
 ```bash
-curl http://localhost:3000/api/auth/user/username/testplayer
+curl http://localhost:3000/auth/user/username/testplayer
 ```
 
 #### 4. Elimina utente
 ```bash
-curl -X DELETE http://localhost:3000/api/auth/user/FIREBASE_UID
+curl -X DELETE http://localhost:3000/auth/user/FIREBASE_UID
 ```
 
 ### Con Postman

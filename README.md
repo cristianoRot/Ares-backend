@@ -105,7 +105,7 @@ Ares-backend/
 
 ### Registrazione Utente
 ```http
-POST /api/auth/register
+POST /auth/register
 Content-Type: application/json
 
 {
@@ -117,13 +117,13 @@ Content-Type: application/json
 
 ### Ottieni Utente
 ```http
-GET /api/auth/user/:uid
-GET /api/auth/user/username/:username
+GET /auth/user/:uid
+GET /auth/user/username/:username
 ```
 
 ### Elimina Utente
 ```http
-DELETE /api/auth/user/:uid
+DELETE /auth/user/:uid
 ```
 
 Per la documentazione completa, vedi [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
@@ -134,7 +134,7 @@ Per la documentazione completa, vedi [API_DOCUMENTATION.md](./API_DOCUMENTATION.
 
 ### Con cURL
 ```bash
-curl -X POST http://localhost:3000/api/auth/register \
+curl -X POST http://localhost:3000/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@example.com",
@@ -298,7 +298,7 @@ public IEnumerator RegisterUser(string email, string password, string username)
     string json = JsonConvert.SerializeObject(data);
     byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
     
-    using (UnityWebRequest www = new UnityWebRequest("http://localhost:3000/api/auth/register", "POST"))
+    using (UnityWebRequest www = new UnityWebRequest("http://localhost:3000/auth/register", "POST"))
     {
         www.uploadHandler = new UploadHandlerRaw(bodyRaw);
         www.downloadHandler = new DownloadHandlerBuffer();

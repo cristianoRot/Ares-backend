@@ -170,7 +170,7 @@ Dovresti ricevere:
 
 ### 3. Testa la registrazione utente
 ```bash
-curl -X POST https://ares-backend.onrender.com/api/auth/register \
+curl -X POST https://ares-backend.onrender.com/auth/register \
   -H "Content-Type: application/json" \
   -d '{
     "email": "test@example.com",
