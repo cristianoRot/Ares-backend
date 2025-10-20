@@ -1,168 +1,168 @@
-# Ares Backend API - Documentazione
+# Ares API Documentation
 
-## Indice
-- [Panoramica](#panoramica)
-- [Struttura del Progetto](#struttura-del-progetto)
-- [Setup](#setup)
+Complete API reference for the Ares Backend.
+
+**Base URL:** `https://api.aresofficial.net`  
+**Version:** 2.0.0  
+**Format:** JSON
+
+---
+
+## Table of Contents
+
+- [Authentication](#authentication)
+- [Response Format](#response-format)
+- [Error Codes](#error-codes)
 - [Endpoints](#endpoints)
-- [Testing](#testing)
+  - [Health Check](#health-check)
+  - [User Registration](#user-registration)
+  - [Get User by UID](#get-user-by-uid)
+  - [Get User by Username](#get-user-by-username)
+  - [Delete User](#delete-user)
+- [Data Models](#data-models)
 
 ---
 
-## Panoramica
+## Authentication
 
-Backend API professionale per Ares, costruito con Node.js, Express e Firebase Admin SDK.
-
-**Versione:** 2.0.0  
-**Architettura:** MVC (Model-View-Controller)
-
-### Stack Tecnologico
-- **Runtime:** Node.js >= 18.0.0
-- **Framework:** Express.js
-- **Database:** Firebase Firestore
-- **Autenticazione:** Firebase Auth
+Currently, all endpoints are public. JWT authentication will be implemented in a future version.
 
 ---
 
-## Struttura del Progetto
+## Response Format
 
-```
-Ares-backend/
-├── config/
-│   └── firebase.js              # Configurazione Firebase
-├── src/
-│   ├── controllers/             # Controllers (logica HTTP)
-│   │   └── auth.controller.js
-│   ├── services/                # Services (business logic)
-│   │   └── auth.service.js
-│   ├── models/                  # Data models
-│   │   └── User.model.js
-│   ├── routes/                  # Route definitions
-│   │   ├── index.js
-│   │   └── auth.routes.js
-│   ├── middlewares/             # Middleware functions
-│   │   ├── errorHandler.js
-│   │   ├── requestLogger.js
-│   │   └── validateFirebase.js
-│   └── utils/                   # Utility functions
-│       └── response.js
-├── server.js                    # Entry point
-├── package.json
-├── .env                         # Environment variables
-└── API_DOCUMENTATION.md
-```
+### Success Response
 
----
-
-## Setup
-
-### 1. Installare le dipendenze
-```bash
-npm install
-```
-
-### 2. Configurare Firebase
-Crea un file `.env` nella root del progetto:
-
-```env
-# Firebase Configuration
-FIREBASE_PROJECT_ID=your-project-id
-FIREBASE_CLIENT_EMAIL=your-client-email
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour-Private-Key\n-----END PRIVATE KEY-----\n"
-
-# Server Configuration
-PORT=3000
-NODE_ENV=development
-CORS_ORIGIN=*
-BASE_URL=http://localhost:3000
-```
-
-### 3. Avviare il server
-
-**Produzione:**
-```bash
-npm start
-```
-
-**Sviluppo (con auto-reload):**
-```bash
-npm run dev
-```
-
----
-
-## Endpoints
-
-### Base URL
-```
-http://localhost:3000
-```
-
-### 1. Welcome / Info
-**GET** `/`
-
-Restituisce informazioni sull'API e lista degli endpoints disponibili.
-
-**Response:**
 ```json
 {
-  "message": "Benvenuto all'API di Ares",
-  "version": "2.0.0",
-  "status": "online",
-  "firebaseStatus": "✅ connected",
-  "endpoints": { ... }
+  "success": true,
+  "message": "Operation completed successfully",
+  "data": { ... },
+  "timestamp": "2025-10-20T12:00:00.000Z"
+}
+```
+
+### Error Response
+
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human-readable error description"
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
 }
 ```
 
 ---
 
-### 2. Health Check
+## Error Codes
+
+| Code | Description |
+|------|-------------|
+| `VALIDATION_ERROR` | Invalid input data |
+| `USER_NOT_FOUND` | User does not exist |
+| `MISSING_UID` | User UID is required |
+| `MISSING_USERNAME` | Username is required |
+| `ENDPOINT_NOT_FOUND` | The requested endpoint does not exist |
+| `SERVICE_UNAVAILABLE` | Database is not available |
+| `INTERNAL_ERROR` | Internal server error |
+| `AUTH_ERROR` | Authentication/authorization error |
+
+### Firebase Auth Error Codes
+
+| Code | Description |
+|------|-------------|
+| `auth/email-already-exists` | Email is already registered |
+| `auth/invalid-email` | Invalid email address |
+| `auth/username-already-exists` | Username is already taken |
+| `auth/weak-password` | Password is too weak (min 6 characters) |
+
+---
+
+## Endpoints
+
+### Health Check
+
+**GET** `/`
+
+Returns API information and available endpoints.
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Welcome to Ares API",
+  "version": "2.0.0",
+  "baseUrl": "https://api.aresofficial.net",
+  "status": "online",
+  "endpoints": {
+    "health": "GET /health",
+    "auth": {
+      "register": "POST /auth/register",
+      "getUser": "GET /auth/user/:uid",
+      "getUserByUsername": "GET /auth/user/username/:username",
+      "deleteUser": "DELETE /auth/user/:uid"
+    }
+  },
+  "firebase": {
+    "status": "connected",
+    "connected": true
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
+}
+```
+
+---
+
 **GET** `/health`
 
-Verifica lo stato dell'API.
+Health check endpoint.
 
 **Response:**
 ```json
 {
   "success": true,
   "message": "API is running",
-  "timestamp": "2025-10-20T10:30:00.000Z"
+  "timestamp": "2025-10-20T12:00:00.000Z"
 }
 ```
 
 ---
 
-### 3. Registrazione Utente
+### User Registration
+
 **POST** `/auth/register`
 
-Crea un nuovo utente con email, password e username.
+Register a new user with email, password, and username.
 
 **Request Body:**
 ```json
 {
-  "email": "user@example.com",
-  "password": "password123",
-  "username": "playerone"
+  "email": "player@example.com",
+  "password": "securepass123",
+  "username": "player1"
 }
 ```
 
-**Validazione:**
-- `email`: formato email valido
-- `password`: minimo 6 caratteri
-- `username`: minimo 3 caratteri
+**Validation Rules:**
+- `email`: Valid email format required
+- `password`: Minimum 6 characters
+- `username`: Minimum 3 characters
 
-**Response Success (201):**
+**Success Response (201):**
 ```json
 {
   "success": true,
-  "message": "Utente registrato con successo",
+  "message": "User registered successfully",
   "data": {
-    "uid": "firebase-user-id",
-    "email": "user@example.com",
-    "username": "playerone",
+    "uid": "qMlicKBQItcYCssl5nEo7r6Qccb2",
+    "email": "player@example.com",
+    "username": "player1",
     "profile": {
-      "username": "playerone",
-      "email": "user@example.com",
+      "username": "player1",
+      "email": "player@example.com",
       "coins": 0,
       "xp": 0,
       "kills": 0,
@@ -172,45 +172,60 @@ Crea un nuovo utente con email, password e username.
       "friends": [],
       "guns": [],
       "friendRequests": [],
-      "createdAt": "2025-10-20T10:30:00.000Z",
-      "updatedAt": "2025-10-20T10:30:00.000Z"
+      "createdAt": "2025-10-20T12:00:00.000Z",
+      "updatedAt": "2025-10-20T12:00:00.000Z"
     }
-  }
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
 }
 ```
 
-**Response Error (400):**
+**Error Response (400):**
 ```json
 {
   "success": false,
-  "error": "Email già registrata",
-  "code": "auth/email-already-exists"
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Invalid input data",
+    "details": [
+      "Invalid email address",
+      "Password must be at least 6 characters",
+      "Username must be at least 3 characters"
+    ]
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
 }
 ```
 
-**Errori possibili:**
-- `auth/email-already-exists` - Email già registrata
-- `auth/invalid-email` - Email non valida
-- `auth/username-already-exists` - Username già in uso
-- `auth/weak-password` - Password troppo debole
+**Example:**
+```bash
+curl -X POST https://api.aresofficial.net/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "player@example.com",
+    "password": "securepass123",
+    "username": "player1"
+  }'
+```
 
 ---
 
-### 4. Ottieni Utente per UID
+### Get User by UID
+
 **GET** `/auth/user/:uid`
 
-Recupera i dati di un utente tramite il suo UID Firebase.
+Retrieve user data by Firebase UID.
 
-**Parametri:**
-- `uid` (path parameter): UID dell'utente Firebase
+**Parameters:**
+- `uid` (path parameter): Firebase user ID
 
-**Response Success (200):**
+**Success Response (200):**
 ```json
 {
   "success": true,
   "data": {
-    "username": "playerone",
-    "email": "user@example.com",
+    "username": "player1",
+    "email": "player@example.com",
     "coins": 0,
     "xp": 0,
     "kills": 0,
@@ -220,185 +235,186 @@ Recupera i dati di un utente tramite il suo UID Firebase.
     "friends": [],
     "guns": [],
     "friendRequests": [],
-    "createdAt": "2025-10-20T10:30:00.000Z",
-    "updatedAt": "2025-10-20T10:30:00.000Z"
-  }
+    "createdAt": "2025-10-20T12:00:00.000Z",
+    "updatedAt": "2025-10-20T12:00:00.000Z"
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
 }
+```
+
+**Error Response (404):**
+```json
+{
+  "success": false,
+  "error": {
+    "code": "USER_NOT_FOUND",
+    "message": "User not found"
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
+}
+```
+
+**Example:**
+```bash
+curl https://api.aresofficial.net/auth/user/qMlicKBQItcYCssl5nEo7r6Qccb2
 ```
 
 ---
 
-### 5. Ottieni Utente per Username
+### Get User by Username
+
 **GET** `/auth/user/username/:username`
 
-Recupera i dati di un utente tramite il suo username.
+Retrieve user data by username.
 
-**Parametri:**
-- `username` (path parameter): Username dell'utente
+**Parameters:**
+- `username` (path parameter): User's username
 
-**Response Success (200):**
+**Success Response (200):**
 ```json
 {
   "success": true,
   "data": {
-    "username": "playerone",
-    "email": "user@example.com",
+    "username": "player1",
+    "email": "player@example.com",
     "coins": 100,
     "xp": 500,
-    ...
-  }
+    "kills": 10,
+    "deaths": 5,
+    "matches": 15,
+    "skinTag": 0,
+    "friends": [],
+    "guns": [0, 1, 2],
+    "friendRequests": [],
+    "createdAt": "2025-10-20T12:00:00.000Z",
+    "updatedAt": "2025-10-20T12:30:00.000Z"
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
 }
 ```
 
----
-
-### 6. Elimina Utente
-**DELETE** `/auth/user/:uid`
-
-Elimina un utente e tutti i suoi dati da Firebase Auth e Firestore.
-
-**Parametri:**
-- `uid` (path parameter): UID dell'utente Firebase
-
-**Response Success (200):**
-```json
-{
-  "success": true,
-  "message": "Utente eliminato con successo"
-}
-```
-
----
-
-## Testing
-
-### Con cURL
-
-#### 1. Registra un nuovo utente
-```bash
-curl -X POST http://localhost:3000/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "password": "password123",
-    "username": "testplayer"
-  }'
-```
-
-#### 2. Ottieni utente per UID
-```bash
-curl http://localhost:3000/auth/user/FIREBASE_UID
-```
-
-#### 3. Ottieni utente per username
-```bash
-curl http://localhost:3000/auth/user/username/testplayer
-```
-
-#### 4. Elimina utente
-```bash
-curl -X DELETE http://localhost:3000/auth/user/FIREBASE_UID
-```
-
-### Con Postman
-
-Importa la seguente collection in Postman:
-
-1. Crea una nuova collection "Ares API"
-2. Aggiungi le richieste con i dettagli sopra
-3. Imposta la variabile `{{baseUrl}}` = `http://localhost:3000`
-
-### Con Thunder Client (VS Code)
-
-Usa il file `test.http` incluso nel progetto per testare gli endpoints direttamente da VS Code.
-
----
-
-## Struttura Dati
-
-### User Profile (Firestore Collection: `users`)
-```typescript
-{
-  username: string,
-  email: string,
-  coins: number,
-  xp: number,
-  kills: number,
-  deaths: number,
-  matches: number,
-  skinTag: number,
-  friends: string[],        // Array di UID
-  guns: number[],           // Array di gun IDs
-  friendRequests: string[], // Array di UID
-  createdAt: string,        // ISO 8601
-  updatedAt: string         // ISO 8601
-}
-```
-
-### Username Mapping (Firestore Collection: `usernames`)
-```typescript
-{
-  uid: string,
-  createdAt: string
-}
-```
-
----
-
-## Error Handling
-
-Tutti gli endpoint seguono una struttura di risposta consistente:
-
-**Success:**
-```json
-{
-  "success": true,
-  "data": { ... },
-  "message": "..."
-}
-```
-
-**Error:**
+**Error Response (404):**
 ```json
 {
   "success": false,
-  "error": "Messaggio di errore",
-  "code": "error/code",
-  "timestamp": "2025-10-20T10:30:00.000Z"
+  "error": {
+    "code": "USER_NOT_FOUND",
+    "message": "User not found"
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
+}
+```
+
+**Example:**
+```bash
+curl https://api.aresofficial.net/auth/user/username/player1
+```
+
+---
+
+### Delete User
+
+**DELETE** `/auth/user/:uid`
+
+Delete a user and all associated data.
+
+**Parameters:**
+- `uid` (path parameter): Firebase user ID
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "message": "User deleted successfully",
+  "timestamp": "2025-10-20T12:00:00.000Z"
+}
+```
+
+**Error Response (400):**
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INTERNAL_ERROR",
+    "message": "An error occurred while deleting the user"
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
+}
+```
+
+**Example:**
+```bash
+curl -X DELETE https://api.aresofficial.net/auth/user/qMlicKBQItcYCssl5nEo7r6Qccb2
+```
+
+---
+
+## Data Models
+
+### User Profile
+
+```typescript
+{
+  username: string,           // User's unique username
+  email: string,              // User's email address
+  coins: number,              // In-game currency
+  xp: number,                 // Experience points
+  kills: number,              // Total kills
+  deaths: number,             // Total deaths
+  matches: number,            // Total matches played
+  skinTag: number,            // Selected skin ID
+  friends: string[],          // Array of friend UIDs
+  guns: number[],             // Array of owned gun IDs
+  friendRequests: string[],   // Array of pending friend request UIDs
+  createdAt: string,          // ISO 8601 timestamp
+  updatedAt: string           // ISO 8601 timestamp
+}
+```
+
+### Username Mapping
+
+```typescript
+{
+  uid: string,               // Firebase user ID
+  createdAt: string          // ISO 8601 timestamp
 }
 ```
 
 ---
 
-## Codici di Stato HTTP
+## HTTP Status Codes
 
-- `200` - OK (successo)
-- `201` - Created (risorsa creata)
-- `400` - Bad Request (errore di validazione)
-- `401` - Unauthorized (non autorizzato)
-- `403` - Forbidden (accesso negato)
-- `404` - Not Found (risorsa non trovata)
-- `500` - Internal Server Error (errore server)
-- `503` - Service Unavailable (servizio non disponibile)
-
----
-
-## Prossimi Sviluppi
-
-- [ ] Middleware di autenticazione JWT
-- [ ] Rate limiting
-- [ ] Endpoint per login
-- [ ] Endpoint per reset password
-- [ ] Gestione amicizie
-- [ ] Sistema di achievements
-- [ ] WebSocket per real-time updates
-- [ ] API versioning
+| Code | Description |
+|------|-------------|
+| `200` | OK - Request successful |
+| `201` | Created - Resource created successfully |
+| `400` | Bad Request - Invalid input data |
+| `401` | Unauthorized - Authentication required |
+| `403` | Forbidden - Access denied |
+| `404` | Not Found - Resource not found |
+| `500` | Internal Server Error - Server error |
+| `503` | Service Unavailable - Service not available |
 
 ---
 
-## Supporto
+## Rate Limiting
 
-Per problemi o domande, contattare il team di sviluppo.
+Currently no rate limiting is implemented. This will be added in a future version.
 
-**Data ultima modifica:** 20 Ottobre 2025
+---
 
+## API Versioning
+
+Current version: **v2.0.0**
+
+Future versions will be accessible via URL prefix (e.g., `/v2/auth/register`)
+
+---
+
+## Support
+
+For issues or questions, please refer to the [README](./README.md) or contact the development team.
+
+---
+
+**Last Updated:** October 20, 2025

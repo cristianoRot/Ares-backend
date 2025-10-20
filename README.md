@@ -1,164 +1,204 @@
 # Ares Backend API
 
-Backend API professionale per il gioco Ares, costruito con architettura MVC scalabile e manutenibile.
+Professional RESTful API for the Ares game, built with Node.js, Express, and Firebase.
 
-## 🚀 Quick Start
+## 🚀 Features
 
-### Prerequisiti
-- Node.js >= 18.0.0
-- npm o yarn
-- Account Firebase con progetto configurato
-
-### Installazione
-
-1. **Clone il repository**
-```bash
-cd Ares-backend
-```
-
-2. **Installa le dipendenze**
-```bash
-npm install
-```
-
-3. **Configura Firebase**
-
-Crea un file `.env` nella root del progetto:
-
-```env
-# Firebase Configuration
-FIREBASE_PROJECT_ID=your-project-id
-FIREBASE_CLIENT_EMAIL=your-client-email@your-project.iam.gserviceaccount.com
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour-Private-Key-Here\n-----END PRIVATE KEY-----\n"
-
-# Server Configuration
-PORT=3000
-NODE_ENV=development
-CORS_ORIGIN=*
-BASE_URL=http://localhost:3000
-```
-
-> **Nota:** Per ottenere le credenziali Firebase, segui la guida in `FIREBASE_SETUP.md`
-
-4. **Avvia il server**
-
-**Produzione:**
-```bash
-npm start
-```
-
-**Sviluppo (con auto-reload):**
-```bash
-npm run dev
-```
-
-Il server sarà disponibile su `http://localhost:3000`
+- ✅ **Scalable MVC Architecture** - Clean, maintainable code structure
+- ✅ **Firebase Integration** - Auth & Firestore database
+- ✅ **Input Validation** - Robust server-side validation
+- ✅ **Error Handling** - Centralized error management
+- ✅ **Professional API Responses** - Standardized JSON responses
+- ✅ **Request Logging** - Detailed HTTP request logs
+- ✅ **CORS Enabled** - Ready for frontend integration
 
 ---
 
-## 📁 Struttura del Progetto
+## 📦 Quick Start
+
+### Prerequisites
+- Node.js >= 18.0.0
+- Firebase project with Firestore enabled
+- npm or yarn
+
+### Installation
+
+```bash
+# Install dependencies
+npm install
+
+# Configure environment variables (see below)
+
+# Start server
+npm start
+
+# Development mode with auto-reload
+npm run dev
+```
+
+Server will run on `http://localhost:3000`
+
+---
+
+## ⚙️ Configuration
+
+Create a `.env` file in the project root:
+
+```env
+# Firebase Configuration (Required)
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_CLIENT_EMAIL=your-service-account@your-project.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour-Private-Key\n-----END PRIVATE KEY-----\n"
+
+# Server Configuration
+PORT=3000
+NODE_ENV=production
+CORS_ORIGIN=*
+BASE_URL=https://api.aresofficial.net
+```
+
+### Getting Firebase Credentials
+
+1. Go to [Firebase Console](https://console.firebase.google.com)
+2. Select your project
+3. Navigate to **Project Settings** → **Service Accounts**
+4. Click **"Generate new private key"**
+5. Download the JSON file
+6. Extract `project_id`, `client_email`, and `private_key` values
+
+**Note:** The `private_key` must keep `\n` as literal text (not actual newlines) when added to `.env`
+
+---
+
+## 📡 API Endpoints
+
+Base URL: `https://api.aresofficial.net`
+
+### Authentication
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/auth/register` | POST | Register new user |
+| `/auth/user/:uid` | GET | Get user by UID |
+| `/auth/user/username/:username` | GET | Get user by username |
+| `/auth/user/:uid` | DELETE | Delete user |
+
+### Health Check
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/` | GET | API info |
+| `/health` | GET | Health check |
+| `/status` | GET | Server status |
+
+---
+
+## 📝 API Examples
+
+### Register User
+
+```bash
+curl -X POST https://api.aresofficial.net/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "player@example.com",
+    "password": "securepass123",
+    "username": "player1"
+  }'
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "message": "User registered successfully",
+  "data": {
+    "uid": "firebase-generated-uid",
+    "email": "player@example.com",
+    "username": "player1",
+    "profile": {
+      "coins": 0,
+      "xp": 0,
+      "kills": 0,
+      "deaths": 0,
+      "matches": 0,
+      "friends": [],
+      "guns": []
+    }
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
+}
+```
+
+### Get User
+
+```bash
+# By UID
+curl https://api.aresofficial.net/auth/user/{uid}
+
+# By Username
+curl https://api.aresofficial.net/auth/user/username/player1
+```
+
+For complete API documentation, see [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
+
+---
+
+## 📁 Project Structure
 
 ```
 Ares-backend/
 ├── config/
-│   └── firebase.js              # Configurazione Firebase Admin SDK
+│   └── firebase.js              # Firebase configuration
 ├── src/
-│   ├── controllers/             # Gestione richieste HTTP
-│   │   └── auth.controller.js   # Controller autenticazione
-│   ├── services/                # Logica di business
-│   │   └── auth.service.js      # Service autenticazione
-│   ├── models/                  # Modelli dati
-│   │   └── User.model.js        # Modello utente
-│   ├── routes/                  # Definizione routes
-│   │   ├── index.js             # Router principale
-│   │   └── auth.routes.js       # Routes autenticazione
-│   ├── middlewares/             # Middleware custom
-│   │   ├── errorHandler.js      # Gestione errori globale
-│   │   ├── requestLogger.js     # Logging richieste
-│   │   └── validateFirebase.js  # Validazione Firebase
+│   ├── controllers/             # HTTP request handlers
+│   ├── services/                # Business logic
+│   ├── models/                  # Data models
+│   ├── routes/                  # Route definitions
+│   ├── middlewares/             # Custom middleware
 │   └── utils/                   # Utility functions
-│       └── response.js          # Helper risposte HTTP
-├── server.js                    # Entry point applicazione
-├── package.json
-├── .env                         # Variabili ambiente (non committare!)
-├── .env.example                 # Esempio configurazione
-├── API_DOCUMENTATION.md         # Documentazione API completa
-├── FIREBASE_SETUP.md            # Guida setup Firebase
-└── README.md                    # Questo file
+├── server.js                    # Application entry point
+├── package.json                 # Dependencies
+├── env.example                  # Environment template
+├── README.md                    # This file
+└── API_DOCUMENTATION.md         # Complete API docs
 ```
 
 ---
 
-## 🔥 Features
+## 🚢 Deployment
 
-✅ **Architettura MVC** - Codice organizzato e manutenibile  
-✅ **Firebase Integration** - Auth e Firestore  
-✅ **Error Handling** - Gestione errori centralizzata  
-✅ **Request Logging** - Log dettagliato delle richieste  
-✅ **Input Validation** - Validazione robusta dei dati  
-✅ **CORS Configured** - Pronto per integration frontend  
-✅ **Professional Structure** - Best practices Node.js  
+### Deploy to Render
+
+1. **Connect GitHub Repository** to Render
+2. **Set Environment Variables** in Render dashboard:
+   - `FIREBASE_PROJECT_ID`
+   - `FIREBASE_CLIENT_EMAIL`
+   - `FIREBASE_PRIVATE_KEY`
+   - `NODE_ENV=production`
+   - `PORT=3000`
+
+3. **Deploy** - Automatic on push to `main` branch
+
+### Environment Variables on Render
+
+The `FIREBASE_PRIVATE_KEY` must include `\n` as literal characters:
+
+```
+-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBg...\n-----END PRIVATE KEY-----\n
+```
 
 ---
 
-## 📡 Endpoints Principali
+## 🗄️ Database Structure
 
-### Registrazione Utente
-```http
-POST /auth/register
-Content-Type: application/json
+### Firestore Collections
 
-{
-  "email": "user@example.com",
-  "password": "password123",
-  "username": "playerone"
-}
-```
-
-### Ottieni Utente
-```http
-GET /auth/user/:uid
-GET /auth/user/username/:username
-```
-
-### Elimina Utente
-```http
-DELETE /auth/user/:uid
-```
-
-Per la documentazione completa, vedi [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
-
----
-
-## 🧪 Testing
-
-### Con cURL
-```bash
-curl -X POST http://localhost:3000/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "test@example.com",
-    "password": "password123",
-    "username": "testplayer"
-  }'
-```
-
-### Con file HTTP
-Usa il file `test.http` con REST Client o Thunder Client per VS Code:
-1. Installa l'estensione "REST Client" o "Thunder Client"
-2. Apri `test.http`
-3. Clicca su "Send Request" sopra ogni richiesta
-
----
-
-## 🗄️ Struttura Database
-
-### Collection: `users`
-Profilo utente con statistiche di gioco
+**users** - User profiles
 ```json
 {
-  "username": "playerone",
-  "email": "user@example.com",
+  "username": "player1",
+  "email": "player@example.com",
   "coins": 0,
   "xp": 0,
   "kills": 0,
@@ -168,120 +208,25 @@ Profilo utente con statistiche di gioco
   "friends": [],
   "guns": [],
   "friendRequests": [],
-  "createdAt": "2025-10-20T10:30:00.000Z",
-  "updatedAt": "2025-10-20T10:30:00.000Z"
+  "createdAt": "2025-10-20T12:00:00.000Z",
+  "updatedAt": "2025-10-20T12:00:00.000Z"
 }
 ```
 
-### Collection: `usernames`
-Mapping username -> UID (per unicità)
+**usernames** - Username to UID mapping
 ```json
 {
   "uid": "firebase-user-id",
-  "createdAt": "2025-10-20T10:30:00.000Z"
+  "createdAt": "2025-10-20T12:00:00.000Z"
 }
 ```
 
 ---
 
-## 🔧 Scripts Disponibili
+## 🎮 Unity Integration
 
-```bash
-npm start        # Avvia server in produzione
-npm run dev      # Avvia server in sviluppo con nodemon
-```
+### Example: Register User from Unity
 
----
-
-## 🛡️ Sicurezza
-
-- ✅ Variabili ambiente per credenziali sensibili
-- ✅ Validazione input lato server
-- ✅ Error handling senza esposizione dettagli interni
-- ⚠️ TODO: Implementare rate limiting
-- ⚠️ TODO: Implementare JWT authentication middleware
-- ⚠️ TODO: Implementare HTTPS in produzione
-
----
-
-## 📝 Changelog
-
-### v2.0.0 (2025-10-20)
-- ✨ Completo refactoring architettura MVC
-- ✨ Implementato endpoint registrazione utente
-- ✨ Aggiunto sistema di validazione robusto
-- ✨ Implementato error handling centralizzato
-- ✨ Aggiunto request logging
-- ✨ Creata documentazione completa
-- ✨ Integrazione completa Firebase Auth + Firestore
-
-### v1.0.0 (precedente)
-- 🎉 Release iniziale con endpoints base
-
----
-
-## 🚧 Roadmap
-
-- [ ] Implementare login endpoint
-- [ ] Implementare password reset
-- [ ] Aggiungere JWT authentication middleware
-- [ ] Sistema di gestione amicizie
-- [ ] Sistema achievements
-- [ ] Rate limiting
-- [ ] API versioning
-- [ ] WebSocket per real-time
-- [ ] Unit tests
-- [ ] Integration tests
-- [ ] Docker containerization
-- [ ] CI/CD pipeline
-
----
-
-## 👥 Contribuire
-
-Questo è un progetto privato. Per contribuire, contattare il team di sviluppo.
-
----
-
-## 📄 Licenza
-
-ISC
-
----
-
-## 🚀 Deploy su Render
-
-Per deployare questo backend su Render:
-
-1. **Collega il repository GitHub** a Render
-2. **Configura le variabili d'ambiente** (vedi `RENDER_DEPLOY.md`)
-3. **Deploy automatico** al push su main
-
-**Guida completa:** Vedi [RENDER_DEPLOY.md](./RENDER_DEPLOY.md)
-
-**Variabili d'ambiente richieste:**
-- `FIREBASE_PROJECT_ID`
-- `FIREBASE_CLIENT_EMAIL`  
-- `FIREBASE_PRIVATE_KEY`
-
----
-
-## 🆘 Supporto
-
-Per problemi o domande:
-1. Verifica la documentazione in `API_DOCUMENTATION.md`
-2. Controlla la configurazione Firebase in `FIREBASE_SETUP.md`
-3. Per problemi di deploy su Render, vedi `RENDER_DEPLOY.md`
-4. Controlla i log del server per errori dettagliati
-5. Contatta il team di sviluppo
-
----
-
-## 🎮 Integrazione con Unity
-
-Questo backend è progettato per integrarsi con il client Unity di Ares. La logica di registrazione replica esattamente il comportamento di `FirebaseAuthManager.cs` nel progetto Unity.
-
-### Esempio chiamata da Unity (C#):
 ```csharp
 using UnityEngine.Networking;
 using System.Collections;
@@ -298,7 +243,7 @@ public IEnumerator RegisterUser(string email, string password, string username)
     string json = JsonConvert.SerializeObject(data);
     byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
     
-    using (UnityWebRequest www = new UnityWebRequest("http://localhost:3000/auth/register", "POST"))
+    using (UnityWebRequest www = new UnityWebRequest("https://api.aresofficial.net/auth/register", "POST"))
     {
         www.uploadHandler = new UploadHandlerRaw(bodyRaw);
         www.downloadHandler = new DownloadHandlerBuffer();
@@ -320,4 +265,69 @@ public IEnumerator RegisterUser(string email, string password, string username)
 
 ---
 
-**Buon coding! 🚀**
+## 🛡️ Security
+
+- ✅ Environment variables for sensitive data
+- ✅ Server-side input validation
+- ✅ Firebase Admin SDK for secure operations
+- ⚠️ TODO: Implement JWT authentication middleware
+- ⚠️ TODO: Add rate limiting
+- ⚠️ TODO: Enable HTTPS in production
+
+---
+
+## 📊 API Response Format
+
+### Success Response
+```json
+{
+  "success": true,
+  "message": "Operation completed successfully",
+  "data": { },
+  "timestamp": "2025-10-20T12:00:00.000Z"
+}
+```
+
+### Error Response
+```json
+{
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Error description"
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
+}
+```
+
+---
+
+## 🚧 Roadmap
+
+- [ ] JWT authentication middleware
+- [ ] Login endpoint
+- [ ] Password reset endpoint
+- [ ] Friends system endpoints
+- [ ] Achievements system
+- [ ] Rate limiting
+- [ ] API versioning
+- [ ] WebSocket support for real-time features
+- [ ] Unit and integration tests
+
+---
+
+## 📄 License
+
+ISC
+
+---
+
+## 📞 Support
+
+For API documentation, see [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
+
+---
+
+**Production URL:** https://api.aresofficial.net  
+**Version:** 2.0.0  
+**Last Updated:** October 20, 2025
