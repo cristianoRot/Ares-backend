@@ -482,12 +482,37 @@ public IEnumerator RegisterUser(string email, string password, string username)
 
 ---
 
+## Security
+
+This repository does NOT contain any sensitive data:
+- No Firebase credentials
+- No API keys
+- No environment variables
+
+All sensitive configuration must be added by the user in a `.env` file (which is gitignored).
+
+**Important:** Never commit your `.env` file or Firebase credentials to version control.
+
+---
+
 ## License
 
-ISC
+MIT License - See [LICENSE](./LICENSE) file for details.
+
+---
+
+## Contributing
+
+This is an open-source project. Contributions are welcome!
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
 
 ---
 
 ## Support
 
-For issues or questions, contact the development team.
+For issues or questions, open an issue on GitHub or contact the development team.
