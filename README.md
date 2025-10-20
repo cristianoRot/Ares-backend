@@ -1,285 +1,305 @@
-# Ares Backend
+# Ares Backend API
 
-Un backend semplice costruito con Node.js ed Express per gestire API REST.
+Backend API professionale per il gioco Ares, costruito con architettura MVC scalabile e manutenibile.
 
-## 🚀 Caratteristiche
+## 🚀 Quick Start
 
-- Server Express configurato
-- CORS abilitato
-- Gestione JSON
-- Integrazione con Firebase/Firestore
-- CRUD completo per Firestore collections
-- Endpoint di esempio pronti all'uso
+### Prerequisiti
+- Node.js >= 18.0.0
+- npm o yarn
+- Account Firebase con progetto configurato
 
-## 📋 Endpoint Disponibili
+### Installazione
 
-### GET /
-Restituisce informazioni generali sull'API
-
-```json
-{
-  "message": "Benvenuto all'API di Ares",
-  "version": "1.0.0",
-  "baseUrl": "https://api.aresofficial.net",
-  "endpoints": [...]
-}
+1. **Clone il repository**
+```bash
+cd Ares-backend
 ```
 
-### GET /name
-Restituisce il nome del progetto
-
-```json
-{
-  "name": "Ares"
-}
-```
-
-### GET /status
-Verifica lo stato del server
-
-```json
-{
-  "status": "online",
-  "timestamp": "2025-10-16T...",
-  "uptime": 123.45
-}
-```
-
-### POST /data
-Invia dati al server
-
-**Body richiesto:**
-```json
-{
-  "name": "Nome",
-  "message": "Messaggio"
-}
-```
-
-**Risposta:**
-```json
-{
-  "success": true,
-  "received": {
-    "name": "Nome",
-    "message": "Messaggio",
-    "receivedAt": "2025-10-16T..."
-  }
-}
-```
-
----
-
-## 🔥 Endpoint Firebase/Firestore
-
-### GET /collection/:collectionName
-Ottieni tutti i documenti da una collection
-
-**Esempio:** `GET /collection/users`
-
-**Risposta:**
-```json
-{
-  "success": true,
-  "count": 2,
-  "data": [
-    { "id": "doc1", "name": "Mario", "email": "mario@example.com" },
-    { "id": "doc2", "name": "Luigi", "email": "luigi@example.com" }
-  ]
-}
-```
-
-### GET /collection/:collectionName/:docId
-Ottieni un singolo documento
-
-**Esempio:** `GET /collection/users/doc1`
-
-**Risposta:**
-```json
-{
-  "success": true,
-  "data": {
-    "id": "doc1",
-    "name": "Mario",
-    "email": "mario@example.com"
-  }
-}
-```
-
-### POST /collection/:collectionName
-Crea un nuovo documento
-
-**Esempio:** `POST /collection/users`
-
-**Body:**
-```json
-{
-  "name": "Mario",
-  "email": "mario@example.com"
-}
-```
-
-**Risposta:**
-```json
-{
-  "success": true,
-  "message": "Documento creato con successo",
-  "id": "generatedId123",
-  "data": {
-    "name": "Mario",
-    "email": "mario@example.com",
-    "createdAt": "2025-10-16T...",
-    "updatedAt": "2025-10-16T..."
-  }
-}
-```
-
-### PUT /collection/:collectionName/:docId
-Aggiorna un documento esistente
-
-**Esempio:** `PUT /collection/users/doc1`
-
-**Body:**
-```json
-{
-  "name": "Mario Rossi"
-}
-```
-
-**Risposta:**
-```json
-{
-  "success": true,
-  "message": "Documento aggiornato con successo",
-  "id": "doc1"
-}
-```
-
-### DELETE /collection/:collectionName/:docId
-Elimina un documento
-
-**Esempio:** `DELETE /collection/users/doc1`
-
-**Risposta:**
-```json
-{
-  "success": true,
-  "message": "Documento eliminato con successo",
-  "id": "doc1"
-}
-```
-
-## 🛠️ Installazione Locale
-
-1. Clona il repository
-2. Installa le dipendenze:
+2. **Installa le dipendenze**
 ```bash
 npm install
 ```
 
-3. Crea un file `.env` (opzionale):
-```bash
-cp .env.example .env
+3. **Configura Firebase**
+
+Crea un file `.env` nella root del progetto:
+
+```env
+# Firebase Configuration
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_CLIENT_EMAIL=your-client-email@your-project.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour-Private-Key-Here\n-----END PRIVATE KEY-----\n"
+
+# Server Configuration
+PORT=3000
+NODE_ENV=development
+CORS_ORIGIN=*
+BASE_URL=http://localhost:3000
 ```
 
-4. Avvia il server:
-```bash
-# Modalità produzione
-npm start
+> **Nota:** Per ottenere le credenziali Firebase, segui la guida in `FIREBASE_SETUP.md`
 
-# Modalità sviluppo (con nodemon)
+4. **Avvia il server**
+
+**Produzione:**
+```bash
+npm start
+```
+
+**Sviluppo (con auto-reload):**
+```bash
 npm run dev
 ```
 
 Il server sarà disponibile su `http://localhost:3000`
 
-## 🌐 Deploy su Render.com
+---
 
-1. Connetti il tuo repository GitHub a Render
-2. Crea un nuovo Web Service
-3. Configura:
-   - **Build Command:** `npm install`
-   - **Start Command:** `npm start`
-   - **Environment:** Node
-4. Render rileverà automaticamente la porta dalla variabile `PORT`
-
-### Variabili d'Ambiente su Render
-
-Configura le seguenti variabili d'ambiente nel dashboard di Render:
-- `NODE_ENV` - Imposta su `production`
-- `PORT` - Viene automaticamente assegnata da Render
-- `BASE_URL` - `https://api.aresofficial.net` (o il tuo dominio personalizzato)
-- `CORS_ORIGIN` - `https://aresofficial.net` (dominio del tuo sito web principale)
-
-### Configurazione Dominio Personalizzato
-
-Per usare il tuo dominio `aresofficial.net`:
-
-1. **Su Render.com:**
-   - Vai al tuo servizio → Settings → Custom Domain
-   - Aggiungi il dominio: `api.aresofficial.net`
-   - Render ti fornirà un record CNAME
-
-2. **Sul tuo provider DNS (es. Cloudflare, Namecheap, ecc.):**
-   - Aggiungi un record CNAME:
-     - **Name/Host:** `api`
-     - **Value/Target:** il valore fornito da Render (es. `tuoapp.onrender.com`)
-     - **TTL:** Auto o 3600
-
-3. **Attendi la propagazione DNS** (può richiedere fino a 24 ore, ma solitamente 5-30 minuti)
-
-4. Le tue API saranno disponibili su:
-   - `https://api.aresofficial.net/`
-   - `https://api.aresofficial.net/name`
-   - `https://api.aresofficial.net/status`
-   - `https://api.aresofficial.net/data`
-
-## 🔥 Configurazione Firebase
-
-### 1. Ottieni le credenziali Firebase
-
-1. Vai alla [Console Firebase](https://console.firebase.google.com/)
-2. Seleziona il tuo progetto
-3. Vai su **Impostazioni Progetto** (icona ingranaggio) → **Account di servizio**
-4. Clicca su **Genera nuova chiave privata**
-5. Scarica il file JSON
-
-### 2. Configurazione per Produzione (Render)
-
-Su Render, aggiungi queste variabili d'ambiente:
+## 📁 Struttura del Progetto
 
 ```
-FIREBASE_PROJECT_ID=your-project-id
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nYour_Private_Key_Here\n-----END PRIVATE KEY-----\n"
+Ares-backend/
+├── config/
+│   └── firebase.js              # Configurazione Firebase Admin SDK
+├── src/
+│   ├── controllers/             # Gestione richieste HTTP
+│   │   └── auth.controller.js   # Controller autenticazione
+│   ├── services/                # Logica di business
+│   │   └── auth.service.js      # Service autenticazione
+│   ├── models/                  # Modelli dati
+│   │   └── User.model.js        # Modello utente
+│   ├── routes/                  # Definizione routes
+│   │   ├── index.js             # Router principale
+│   │   └── auth.routes.js       # Routes autenticazione
+│   ├── middlewares/             # Middleware custom
+│   │   ├── errorHandler.js      # Gestione errori globale
+│   │   ├── requestLogger.js     # Logging richieste
+│   │   └── validateFirebase.js  # Validazione Firebase
+│   └── utils/                   # Utility functions
+│       └── response.js          # Helper risposte HTTP
+├── server.js                    # Entry point applicazione
+├── package.json
+├── .env                         # Variabili ambiente (non committare!)
+├── .env.example                 # Esempio configurazione
+├── API_DOCUMENTATION.md         # Documentazione API completa
+├── FIREBASE_SETUP.md            # Guida setup Firebase
+└── README.md                    # Questo file
 ```
-
-**IMPORTANTE:** Copia la private key esattamente come appare nel file JSON, inclusi `\n` per le nuove righe.
-
-### 3. Configurazione per Sviluppo Locale
-
-**Opzione A:** Usa le variabili d'ambiente (come sopra) nel file `.env`
-
-**Opzione B:** Usa il file JSON:
-1. Rinomina il file scaricato in `serviceAccountKey.json`
-2. Mettilo nella root del progetto
-3. Aggiungi nel file `.env`:
-```
-FIREBASE_SERVICE_ACCOUNT_PATH=./serviceAccountKey.json
-```
-
-⚠️ **NON committare mai il file `serviceAccountKey.json` su Git!** (È già nel `.gitignore`)
 
 ---
 
-## 📦 Dipendenze
+## 🔥 Features
 
-- **express** - Framework web
-- **cors** - Gestione CORS
-- **dotenv** - Gestione variabili d'ambiente
-- **firebase-admin** - SDK Firebase per Node.js
+✅ **Architettura MVC** - Codice organizzato e manutenibile  
+✅ **Firebase Integration** - Auth e Firestore  
+✅ **Error Handling** - Gestione errori centralizzata  
+✅ **Request Logging** - Log dettagliato delle richieste  
+✅ **Input Validation** - Validazione robusta dei dati  
+✅ **CORS Configured** - Pronto per integration frontend  
+✅ **Professional Structure** - Best practices Node.js  
 
-## 📝 Licenza
+---
+
+## 📡 Endpoints Principali
+
+### Registrazione Utente
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123",
+  "username": "playerone"
+}
+```
+
+### Ottieni Utente
+```http
+GET /api/auth/user/:uid
+GET /api/auth/user/username/:username
+```
+
+### Elimina Utente
+```http
+DELETE /api/auth/user/:uid
+```
+
+Per la documentazione completa, vedi [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
+
+---
+
+## 🧪 Testing
+
+### Con cURL
+```bash
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "test@example.com",
+    "password": "password123",
+    "username": "testplayer"
+  }'
+```
+
+### Con file HTTP
+Usa il file `test.http` con REST Client o Thunder Client per VS Code:
+1. Installa l'estensione "REST Client" o "Thunder Client"
+2. Apri `test.http`
+3. Clicca su "Send Request" sopra ogni richiesta
+
+---
+
+## 🗄️ Struttura Database
+
+### Collection: `users`
+Profilo utente con statistiche di gioco
+```json
+{
+  "username": "playerone",
+  "email": "user@example.com",
+  "coins": 0,
+  "xp": 0,
+  "kills": 0,
+  "deaths": 0,
+  "matches": 0,
+  "skinTag": 0,
+  "friends": [],
+  "guns": [],
+  "friendRequests": [],
+  "createdAt": "2025-10-20T10:30:00.000Z",
+  "updatedAt": "2025-10-20T10:30:00.000Z"
+}
+```
+
+### Collection: `usernames`
+Mapping username -> UID (per unicità)
+```json
+{
+  "uid": "firebase-user-id",
+  "createdAt": "2025-10-20T10:30:00.000Z"
+}
+```
+
+---
+
+## 🔧 Scripts Disponibili
+
+```bash
+npm start        # Avvia server in produzione
+npm run dev      # Avvia server in sviluppo con nodemon
+```
+
+---
+
+## 🛡️ Sicurezza
+
+- ✅ Variabili ambiente per credenziali sensibili
+- ✅ Validazione input lato server
+- ✅ Error handling senza esposizione dettagli interni
+- ⚠️ TODO: Implementare rate limiting
+- ⚠️ TODO: Implementare JWT authentication middleware
+- ⚠️ TODO: Implementare HTTPS in produzione
+
+---
+
+## 📝 Changelog
+
+### v2.0.0 (2025-10-20)
+- ✨ Completo refactoring architettura MVC
+- ✨ Implementato endpoint registrazione utente
+- ✨ Aggiunto sistema di validazione robusto
+- ✨ Implementato error handling centralizzato
+- ✨ Aggiunto request logging
+- ✨ Creata documentazione completa
+- ✨ Integrazione completa Firebase Auth + Firestore
+
+### v1.0.0 (precedente)
+- 🎉 Release iniziale con endpoints base
+
+---
+
+## 🚧 Roadmap
+
+- [ ] Implementare login endpoint
+- [ ] Implementare password reset
+- [ ] Aggiungere JWT authentication middleware
+- [ ] Sistema di gestione amicizie
+- [ ] Sistema achievements
+- [ ] Rate limiting
+- [ ] API versioning
+- [ ] WebSocket per real-time
+- [ ] Unit tests
+- [ ] Integration tests
+- [ ] Docker containerization
+- [ ] CI/CD pipeline
+
+---
+
+## 👥 Contribuire
+
+Questo è un progetto privato. Per contribuire, contattare il team di sviluppo.
+
+---
+
+## 📄 Licenza
 
 ISC
 
+---
+
+## 🆘 Supporto
+
+Per problemi o domande:
+1. Verifica la documentazione in `API_DOCUMENTATION.md`
+2. Controlla la configurazione Firebase in `FIREBASE_SETUP.md`
+3. Controlla i log del server per errori dettagliati
+4. Contatta il team di sviluppo
+
+---
+
+## 🎮 Integrazione con Unity
+
+Questo backend è progettato per integrarsi con il client Unity di Ares. La logica di registrazione replica esattamente il comportamento di `FirebaseAuthManager.cs` nel progetto Unity.
+
+### Esempio chiamata da Unity (C#):
+```csharp
+using UnityEngine.Networking;
+using System.Collections;
+using Newtonsoft.Json;
+
+public IEnumerator RegisterUser(string email, string password, string username)
+{
+    var data = new {
+        email = email,
+        password = password,
+        username = username
+    };
+    
+    string json = JsonConvert.SerializeObject(data);
+    byte[] bodyRaw = System.Text.Encoding.UTF8.GetBytes(json);
+    
+    using (UnityWebRequest www = new UnityWebRequest("http://localhost:3000/api/auth/register", "POST"))
+    {
+        www.uploadHandler = new UploadHandlerRaw(bodyRaw);
+        www.downloadHandler = new DownloadHandlerBuffer();
+        www.SetRequestHeader("Content-Type", "application/json");
+        
+        yield return www.SendWebRequest();
+        
+        if (www.result == UnityWebRequest.Result.Success)
+        {
+            Debug.Log("User registered: " + www.downloadHandler.text);
+        }
+        else
+        {
+            Debug.LogError("Error: " + www.error);
+        }
+    }
+}
+```
+
+---
+
+**Buon coding! 🚀**

@@ -1,0 +1,92 @@
+###
+# Ares Backend API - Test Requests
+# Usa questo file con REST Client extension per VS Code o Thunder Client
+###
+
+@baseUrl = http://localhost:3000
+@apiUrl = {{baseUrl}}/api
+
+### Welcome / Info
+GET {{baseUrl}}
+
+### Health Check
+GET {{apiUrl}}/health
+
+### ============================================
+### AUTH ENDPOINTS
+### ============================================
+
+### Registra nuovo utente
+POST {{apiUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "testuser@example.com",
+  "password": "password123",
+  "username": "testplayer"
+}
+
+### Registra secondo utente
+POST {{apiUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "player2@example.com",
+  "password": "securepass456",
+  "username": "player2"
+}
+
+### Test validazione - Email mancante (dovrebbe fallire)
+POST {{apiUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "password": "password123",
+  "username": "testplayer"
+}
+
+### Test validazione - Password troppo corta (dovrebbe fallire)
+POST {{apiUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "123",
+  "username": "testplayer"
+}
+
+### Test validazione - Username troppo corto (dovrebbe fallire)
+POST {{apiUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123",
+  "username": "ab"
+}
+
+### Ottieni utente per UID (sostituisci YOUR_USER_UID con un UID reale)
+GET {{apiUrl}}/auth/user/YOUR_USER_UID
+
+### Ottieni utente per username
+GET {{apiUrl}}/auth/user/username/testplayer
+
+### Ottieni utente per username (utente non esistente)
+GET {{apiUrl}}/auth/user/username/nonexistent
+
+### Elimina utente (sostituisci YOUR_USER_UID con un UID reale)
+DELETE {{apiUrl}}/auth/user/YOUR_USER_UID
+
+### ============================================
+### LEGACY ENDPOINTS
+### ============================================
+
+### Legacy - Get Name
+GET {{baseUrl}}/name
+
+### Legacy - Get Status
+GET {{baseUrl}}/status
+
+### Test 404 - Endpoint non esistente
+GET {{baseUrl}}/nonexistent-endpoint
+
