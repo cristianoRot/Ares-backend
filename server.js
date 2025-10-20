@@ -113,12 +113,12 @@ app.use(errorHandler);
 app.listen(PORT, () => {
   console.log('');
   console.log('========================================');
-  console.log('🚀 Ares Backend API');
+  console.log('Ares Backend API');
   console.log('========================================');
-  console.log(`📡 Server:        http://localhost:${PORT}`);
-  console.log(`🌍 Environment:   ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🔥 Firebase:      ${db ? '✅ Connected' : '❌ Not configured'}`);
-  console.log(`⏰ Started at:    ${new Date().toISOString()}`);
+  console.log(`Server:        http://localhost:${PORT}`);
+  console.log(`Environment:   ${process.env.NODE_ENV || 'development'}`);
+  console.log(`Firebase:      ${db ? 'Connected' : 'Not configured'}`);
+  console.log(`Started at:    ${new Date().toISOString()}`);
   console.log('========================================');
   console.log('');
 });

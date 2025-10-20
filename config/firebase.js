@@ -14,7 +14,7 @@ const initializeFirebase = () => {
             privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n')
           })
         });
-        console.log('✅ Firebase initialized with environment variables');
+        console.log('[Firebase] Initialized with environment variables');
       } 
       // Option 2: Use serviceAccountKey.json file (for local development)
       else if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
@@ -22,15 +22,15 @@ const initializeFirebase = () => {
         admin.initializeApp({
           credential: admin.credential.cert(serviceAccount)
         });
-        console.log('✅ Firebase initialized with service account file');
+        console.log('[Firebase] Initialized with service account file');
       } else {
-        console.warn('⚠️  Firebase not configured - add credentials in environment variables');
+        console.warn('[Firebase] Not configured - add credentials in environment variables');
       }
     }
 
     return admin;
   } catch (error) {
-    console.error('❌ Error initializing Firebase:', error.message);
+    console.error('[Firebase] Error initializing:', error.message);
     return null;
   }
 };
@@ -46,7 +46,7 @@ const getDb = () => {
   try {
     return firebaseAdmin.firestore();
   } catch (error) {
-    console.error('❌ Error accessing Firestore:', error.message);
+    console.error('[Firebase] Error accessing Firestore:', error.message);
     return null;
   }
 };
