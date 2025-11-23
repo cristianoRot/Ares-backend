@@ -57,6 +57,10 @@ app.get('/', (req, res) => {
         getUserByUsername: 'GET /auth/user/username/:username',
         deleteUser: 'DELETE /auth/user/:uid'
       },
+      admin: {
+        getAllUsers: 'GET /admin/users',
+        getUsersCount: 'GET /admin/users/count'
+      },
       legacy: {
         status: 'GET /status',
         name: 'GET /name'

@@ -158,6 +158,7 @@ Local: `http://localhost:3000`
 | `SERVICE_UNAVAILABLE` | Database is not available |
 | `INTERNAL_ERROR` | Internal server error |
 | `AUTH_ERROR` | Authentication/authorization error |
+| `ADMIN_ERROR` | Admin operation error |
 
 #### Firebase Auth Error Codes
 
@@ -340,6 +341,81 @@ curl -X DELETE https://api.aresofficial.net/auth/user/{uid}
 {
   "success": true,
   "message": "User deleted successfully"
+}
+```
+
+---
+
+#### Admin - Get All Users
+
+**GET** `/admin/users`
+
+Get all users with their Firebase Auth data and Firestore profiles.
+
+```bash
+curl https://api.aresofficial.net/admin/users
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "message": "Users retrieved successfully",
+  "data": {
+    "total": 150,
+    "users": [
+      {
+        "uid": "qMlicKBQItcYCssl5nEo7r6Qccb2",
+        "email": "player@example.com",
+        "emailVerified": true,
+        "displayName": "player1",
+        "disabled": false,
+        "metadata": {
+          "creationTime": "2025-10-20T12:00:00.000Z",
+          "lastSignInTime": "2025-10-20T15:30:00.000Z"
+        },
+        "profile": {
+          "username": "player1",
+          "coins": 100,
+          "xp": 500,
+          "kills": 10,
+          "deaths": 5,
+          "matches": 15
+        }
+      }
+    ],
+    "stats": {
+      "total": 150,
+      "emailVerified": 120,
+      "emailNotVerified": 30,
+      "disabled": 2,
+      "withProfile": 148,
+      "withoutProfile": 2
+    }
+  }
+}
+```
+
+---
+
+#### Admin - Get Users Count
+
+**GET** `/admin/users/count`
+
+Get total number of registered users (faster than getting all users).
+
+```bash
+curl https://api.aresofficial.net/admin/users/count
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "message": "Users count retrieved successfully",
+  "data": {
+    "count": 150
+  }
 }
 ```
 
