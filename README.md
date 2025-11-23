@@ -353,13 +353,19 @@ curl -X DELETE https://api.aresofficial.net/auth/user/{uid}
 
 #### Admin - Get All Users
 
+**GET** `/admin/users`  
 **POST** `/admin/users`
 
 Get all users with their Firebase Auth data and Firestore profiles.
 
-**Authentication Required:** Admin only (requires email and password in request body)
+**Authentication Required:** Admin only (requires email and password)
 
-**Request:**
+**Request (GET with query params):**
+```bash
+curl "https://api.aresofficial.net/admin/users?email=admin@example.com&password=adminpassword"
+```
+
+**Request (POST with body):**
 ```bash
 curl -X POST https://api.aresofficial.net/admin/users \
   -H "Content-Type: application/json" \
@@ -369,9 +375,11 @@ curl -X POST https://api.aresofficial.net/admin/users \
   }'
 ```
 
-**Request Body:**
-- `email` (string, required) - Admin user email
-- `password` (string, required) - Admin user password
+**Parameters:**
+- `email` (string, required) - Admin user email (query param for GET, body for POST)
+- `password` (string, required) - Admin user password (query param for GET, body for POST)
+
+**Note:** POST method is more secure as credentials are not exposed in URL/logs.
 
 **Success Response (200):**
 ```json
@@ -417,13 +425,19 @@ curl -X POST https://api.aresofficial.net/admin/users \
 
 #### Admin - Get Users Count
 
+**GET** `/admin/users/count`  
 **POST** `/admin/users/count`
 
 Get total number of registered users (faster than getting all users).
 
-**Authentication Required:** Admin only (requires email and password in request body)
+**Authentication Required:** Admin only (requires email and password)
 
-**Request:**
+**Request (GET with query params):**
+```bash
+curl "https://api.aresofficial.net/admin/users/count?email=admin@example.com&password=adminpassword"
+```
+
+**Request (POST with body):**
 ```bash
 curl -X POST https://api.aresofficial.net/admin/users/count \
   -H "Content-Type: application/json" \
@@ -433,9 +447,11 @@ curl -X POST https://api.aresofficial.net/admin/users/count \
   }'
 ```
 
-**Request Body:**
-- `email` (string, required) - Admin user email
-- `password` (string, required) - Admin user password
+**Parameters:**
+- `email` (string, required) - Admin user email (query param for GET, body for POST)
+- `password` (string, required) - Admin user password (query param for GET, body for POST)
+
+**Note:** POST method is more secure as credentials are not exposed in URL/logs.
 
 **Success Response (200):**
 ```json

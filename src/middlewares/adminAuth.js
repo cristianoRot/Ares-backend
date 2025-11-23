@@ -1,6 +1,7 @@
 /**
  * Admin Authentication Middleware
  * Verifies email/password and checks admin privileges
+ * Supports both GET (query params) and POST (body) methods
  */
 
 const { admin } = require('../../config/firebase');
@@ -8,8 +9,9 @@ const axios = require('axios');
 
 const adminAuth = async (req, res, next) => {
   try {
-    // Get email and password from request body
-    const { email, password } = req.body;
+    // Get email and password from request body (POST) or query params (GET)
+    const email = req.body?.email || req.query?.email;
+    const password = req.body?.password || req.query?.password;
 
     // Validate input
     if (!email || !password) {
@@ -17,7 +19,7 @@ const adminAuth = async (req, res, next) => {
         success: false,
         error: {
           code: 'MISSING_CREDENTIALS',
-          message: 'Email and password are required in request body'
+          message: 'Email and password are required. Use query params for GET or body for POST.'
         },
         timestamp: new Date().toISOString()
       });
