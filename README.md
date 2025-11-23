@@ -159,6 +159,9 @@ Local: `http://localhost:3000`
 | `INTERNAL_ERROR` | Internal server error |
 | `AUTH_ERROR` | Authentication/authorization error |
 | `ADMIN_ERROR` | Admin operation error |
+| `UNAUTHORIZED` | Missing or invalid authentication token |
+| `INVALID_TOKEN` | Invalid or expired authentication token |
+| `FORBIDDEN` | Admin privileges required |
 
 #### Firebase Auth Error Codes
 
@@ -352,9 +355,16 @@ curl -X DELETE https://api.aresofficial.net/auth/user/{uid}
 
 Get all users with their Firebase Auth data and Firestore profiles.
 
+**Authentication Required:** Admin only (requires Firebase ID token with admin custom claim)
+
+**Request:**
 ```bash
-curl https://api.aresofficial.net/admin/users
+curl https://api.aresofficial.net/admin/users \
+  -H "Authorization: Bearer YOUR_FIREBASE_ID_TOKEN"
 ```
+
+**Headers:**
+- `Authorization: Bearer <firebase-id-token>` - Required. Firebase ID token from authenticated admin user
 
 **Success Response (200):**
 ```json
@@ -404,9 +414,16 @@ curl https://api.aresofficial.net/admin/users
 
 Get total number of registered users (faster than getting all users).
 
+**Authentication Required:** Admin only (requires Firebase ID token with admin custom claim)
+
+**Request:**
 ```bash
-curl https://api.aresofficial.net/admin/users/count
+curl https://api.aresofficial.net/admin/users/count \
+  -H "Authorization: Bearer YOUR_FIREBASE_ID_TOKEN"
 ```
+
+**Headers:**
+- `Authorization: Bearer <firebase-id-token>` - Required. Firebase ID token from authenticated admin user
 
 **Success Response (200):**
 ```json
@@ -568,6 +585,27 @@ This repository does NOT contain any sensitive data:
 All sensitive configuration must be added by the user in a `.env` file (which is gitignored).
 
 **Important:** Never commit your `.env` file or Firebase credentials to version control.
+
+### Admin Authentication
+
+Admin endpoints require Firebase ID token authentication with admin custom claim:
+
+1. **Set Admin Claim:** Use the script in `admin/set_admin.js` to grant admin privileges to a user
+2. **Get Firebase ID Token:** Client must authenticate and get ID token from Firebase Auth
+3. **Send Token:** Include token in `Authorization: Bearer <token>` header
+
+**Example (Unity):**
+```csharp
+// After Firebase Auth login
+string idToken = await FirebaseAuth.DefaultInstance.CurrentUser.TokenAsync(true);
+// Send in request header: Authorization: Bearer {idToken}
+```
+
+**Setting Admin Claim:**
+```bash
+node admin/set_admin.js
+# Enter user email and set admin to true
+```
 
 ---
 

@@ -111,7 +111,21 @@ class AdminService {
       };
     }
   }
+
+  /**
+   * Set admin custom claim for a user
+   */
+  async setAdminClaim(uid, isAdmin = true) {
+    try {
+      await admin.auth().setCustomUserClaims(uid, { admin: isAdmin });
+      return { success: true, message: `Admin claim ${isAdmin ? 'granted' : 'revoked'} successfully` };
+    } catch (error) {
+      throw {
+        code: 'ADMIN_ERROR',
+        message: error.message || 'Failed to set admin claim'
+      };
+    }
+  }
 }
 
 module.exports = new AdminService();
-
