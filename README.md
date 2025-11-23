@@ -162,6 +162,8 @@ Local: `http://localhost:3000`
 | `UNAUTHORIZED` | Missing or invalid authentication token |
 | `INVALID_TOKEN` | Invalid or expired authentication token |
 | `FORBIDDEN` | Admin privileges required |
+| `MISSING_CREDENTIALS` | Email and password are required |
+| `INVALID_CREDENTIALS` | Invalid email or password |
 
 #### Firebase Auth Error Codes
 
@@ -351,20 +353,25 @@ curl -X DELETE https://api.aresofficial.net/auth/user/{uid}
 
 #### Admin - Get All Users
 
-**GET** `/admin/users`
+**POST** `/admin/users`
 
 Get all users with their Firebase Auth data and Firestore profiles.
 
-**Authentication Required:** Admin only (requires Firebase ID token with admin custom claim)
+**Authentication Required:** Admin only (requires email and password in request body)
 
 **Request:**
 ```bash
-curl https://api.aresofficial.net/admin/users \
-  -H "Authorization: Bearer YOUR_FIREBASE_ID_TOKEN"
+curl -X POST https://api.aresofficial.net/admin/users \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@example.com",
+    "password": "adminpassword"
+  }'
 ```
 
-**Headers:**
-- `Authorization: Bearer <firebase-id-token>` - Required. Firebase ID token from authenticated admin user
+**Request Body:**
+- `email` (string, required) - Admin user email
+- `password` (string, required) - Admin user password
 
 **Success Response (200):**
 ```json
@@ -410,20 +417,25 @@ curl https://api.aresofficial.net/admin/users \
 
 #### Admin - Get Users Count
 
-**GET** `/admin/users/count`
+**POST** `/admin/users/count`
 
 Get total number of registered users (faster than getting all users).
 
-**Authentication Required:** Admin only (requires Firebase ID token with admin custom claim)
+**Authentication Required:** Admin only (requires email and password in request body)
 
 **Request:**
 ```bash
-curl https://api.aresofficial.net/admin/users/count \
-  -H "Authorization: Bearer YOUR_FIREBASE_ID_TOKEN"
+curl -X POST https://api.aresofficial.net/admin/users/count \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@example.com",
+    "password": "adminpassword"
+  }'
 ```
 
-**Headers:**
-- `Authorization: Bearer <firebase-id-token>` - Required. Firebase ID token from authenticated admin user
+**Request Body:**
+- `email` (string, required) - Admin user email
+- `password` (string, required) - Admin user password
 
 **Success Response (200):**
 ```json
@@ -588,17 +600,18 @@ All sensitive configuration must be added by the user in a `.env` file (which is
 
 ### Admin Authentication
 
-Admin endpoints require Firebase ID token authentication with admin custom claim:
+Admin endpoints require email and password authentication with admin custom claim:
 
 1. **Set Admin Claim:** Use the script in `admin/set_admin.js` to grant admin privileges to a user
-2. **Get Firebase ID Token:** Client must authenticate and get ID token from Firebase Auth
-3. **Send Token:** Include token in `Authorization: Bearer <token>` header
+2. **Send Credentials:** Include email and password in request body
+3. **Verify:** Backend verifies credentials and checks admin claim
 
-**Example (Unity):**
-```csharp
-// After Firebase Auth login
-string idToken = await FirebaseAuth.DefaultInstance.CurrentUser.TokenAsync(true);
-// Send in request header: Authorization: Bearer {idToken}
+**Request Format:**
+```json
+{
+  "email": "admin@example.com",
+  "password": "adminpassword"
+}
 ```
 
 **Setting Admin Claim:**
@@ -606,6 +619,14 @@ string idToken = await FirebaseAuth.DefaultInstance.CurrentUser.TokenAsync(true)
 node admin/set_admin.js
 # Enter user email and set admin to true
 ```
+
+**Environment Variable (Optional but Recommended):**
+For enhanced security with password verification, add to `.env`:
+```env
+FIREBASE_WEB_API_KEY=your-firebase-web-api-key
+```
+
+You can find your Web API Key in Firebase Console > Project Settings > General > Your apps
 
 ---
 

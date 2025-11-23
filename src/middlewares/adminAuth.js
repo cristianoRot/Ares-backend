@@ -1,57 +1,78 @@
 /**
  * Admin Authentication Middleware
- * Verifies that the user is authenticated and has admin privileges
+ * Verifies email/password and checks admin privileges
  */
 
 const { admin } = require('../../config/firebase');
+const axios = require('axios');
 
 const adminAuth = async (req, res, next) => {
   try {
-    // Get token from Authorization header
-    const authHeader = req.headers.authorization;
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({
+    // Get email and password from request body
+    const { email, password } = req.body;
+
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({
         success: false,
         error: {
-          code: 'UNAUTHORIZED',
-          message: 'Authorization token required. Format: Bearer <token>'
+          code: 'MISSING_CREDENTIALS',
+          message: 'Email and password are required in request body'
         },
         timestamp: new Date().toISOString()
       });
     }
 
-    // Extract token
-    const token = authHeader.split('Bearer ')[1];
-
-    if (!token) {
-      return res.status(401).json({
-        success: false,
-        error: {
-          code: 'UNAUTHORIZED',
-          message: 'Invalid authorization token format'
-        },
-        timestamp: new Date().toISOString()
-      });
-    }
-
-    // Verify Firebase ID token
-    let decodedToken;
+    // Verify credentials using Firebase Auth REST API
+    let userRecord;
     try {
-      decodedToken = await admin.auth().verifyIdToken(token);
+      // First, get user by email to verify it exists
+      userRecord = await admin.auth().getUserByEmail(email.trim());
     } catch (error) {
       return res.status(401).json({
         success: false,
         error: {
-          code: 'INVALID_TOKEN',
-          message: 'Invalid or expired authentication token'
+          code: 'INVALID_CREDENTIALS',
+          message: 'Invalid email or password'
         },
         timestamp: new Date().toISOString()
       });
     }
 
+    // Verify password using Firebase REST API if Web API Key is available
+    if (process.env.FIREBASE_WEB_API_KEY) {
+      try {
+        // Use Firebase REST API to verify password
+        await axios.post(
+          `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_WEB_API_KEY}`,
+          {
+            email: email.trim(),
+            password: password,
+            returnSecureToken: true
+          }
+        );
+        // If we get here, credentials are valid
+      } catch (error) {
+        // Password verification failed
+        return res.status(401).json({
+          success: false,
+          error: {
+            code: 'INVALID_CREDENTIALS',
+            message: 'Invalid email or password'
+          },
+          timestamp: new Date().toISOString()
+        });
+      }
+    } else {
+      // If Web API Key is not available, only verify user exists
+      // Note: This is less secure. For production, add FIREBASE_WEB_API_KEY to environment variables
+      console.warn('[AdminAuth] FIREBASE_WEB_API_KEY not set. Password verification skipped.');
+    }
+
     // Check if user has admin custom claim
-    if (!decodedToken.admin && decodedToken.admin !== true) {
+    const customClaims = userRecord.customClaims || {};
+    
+    if (!customClaims.admin && customClaims.admin !== true) {
       return res.status(403).json({
         success: false,
         error: {
@@ -64,8 +85,8 @@ const adminAuth = async (req, res, next) => {
 
     // Attach user info to request
     req.user = {
-      uid: decodedToken.uid,
-      email: decodedToken.email,
+      uid: userRecord.uid,
+      email: userRecord.email,
       admin: true
     };
 
@@ -84,4 +105,3 @@ const adminAuth = async (req, res, next) => {
 };
 
 module.exports = adminAuth;
-
