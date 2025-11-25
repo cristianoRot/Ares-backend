@@ -136,6 +136,167 @@ class AdminService {
       };
     }
   }
+
+  /**
+   * Delete user by email (admin only)
+   */
+  async deleteUserByEmail(targetUserEmail) {
+    try {
+      // Get user by email
+      const userRecord = await admin.auth().getUserByEmail(targetUserEmail.trim());
+      const uid = userRecord.uid;
+
+      // Get username before deleting the document
+      const userDoc = await db.collection('users').doc(uid).get();
+      let username = null;
+      if (userDoc.exists) {
+        username = userDoc.data().username;
+      }
+
+      // Delete from Firebase Auth
+      await admin.auth().deleteUser(uid);
+
+      // Delete username document
+      if (username) {
+        await db.collection('usernames').doc(username).delete();
+      }
+
+      // Delete user profile
+      if (userDoc.exists) {
+        await db.collection('users').doc(uid).delete();
+      }
+
+      return {
+        success: true,
+        message: `User ${targetUserEmail} deleted successfully`,
+        data: {
+          uid: uid,
+          email: targetUserEmail
+        }
+      };
+    } catch (error) {
+      if (error.code === 'auth/user-not-found') {
+        throw {
+          code: 'USER_NOT_FOUND',
+          message: `User with email ${targetUserEmail} not found`
+        };
+      }
+      throw {
+        code: 'ADMIN_ERROR',
+        message: error.message || 'Failed to delete user'
+      };
+    }
+  }
+
+  /**
+   * Disable or enable user by email (admin only)
+   */
+  async setUserDisabled(targetUserEmail, disabled = true) {
+    try {
+      // Get user by email
+      const userRecord = await admin.auth().getUserByEmail(targetUserEmail.trim());
+
+      // Update user disabled status
+      await admin.auth().updateUser(userRecord.uid, {
+        disabled: disabled
+      });
+
+      return {
+        success: true,
+        message: `User ${targetUserEmail} ${disabled ? 'disabled' : 'enabled'} successfully`,
+        data: {
+          uid: userRecord.uid,
+          email: userRecord.email,
+          disabled: disabled
+        }
+      };
+    } catch (error) {
+      if (error.code === 'auth/user-not-found') {
+        throw {
+          code: 'USER_NOT_FOUND',
+          message: `User with email ${targetUserEmail} not found`
+        };
+      }
+      throw {
+        code: 'ADMIN_ERROR',
+        message: error.message || 'Failed to update user status'
+      };
+    }
+  }
+
+  /**
+   * Update user custom claims (admin only)
+   */
+  async updateUserCustomClaims(targetUserEmail, customClaims) {
+    try {
+      // Get user by email
+      const userRecord = await admin.auth().getUserByEmail(targetUserEmail.trim());
+
+      // Merge with existing custom claims (preserve admin if not specified)
+      const existingClaims = userRecord.customClaims || {};
+      const updatedClaims = { ...existingClaims, ...customClaims };
+
+      // Set custom claims
+      await admin.auth().setCustomUserClaims(userRecord.uid, updatedClaims);
+
+      return {
+        success: true,
+        message: `Custom claims updated successfully for ${targetUserEmail}`,
+        data: {
+          uid: userRecord.uid,
+          email: userRecord.email,
+          customClaims: updatedClaims
+        }
+      };
+    } catch (error) {
+      if (error.code === 'auth/user-not-found') {
+        throw {
+          code: 'USER_NOT_FOUND',
+          message: `User with email ${targetUserEmail} not found`
+        };
+      }
+      throw {
+        code: 'ADMIN_ERROR',
+        message: error.message || 'Failed to update custom claims'
+      };
+    }
+  }
+
+  /**
+   * Update user display name (admin only)
+   */
+  async updateUserDisplayName(targetUserEmail, displayName) {
+    try {
+      // Get user by email
+      const userRecord = await admin.auth().getUserByEmail(targetUserEmail.trim());
+
+      // Update display name
+      await admin.auth().updateUser(userRecord.uid, {
+        displayName: displayName
+      });
+
+      return {
+        success: true,
+        message: `Display name updated successfully for ${targetUserEmail}`,
+        data: {
+          uid: userRecord.uid,
+          email: userRecord.email,
+          displayName: displayName
+        }
+      };
+    } catch (error) {
+      if (error.code === 'auth/user-not-found') {
+        throw {
+          code: 'USER_NOT_FOUND',
+          message: `User with email ${targetUserEmail} not found`
+        };
+      }
+      throw {
+        code: 'ADMIN_ERROR',
+        message: error.message || 'Failed to update display name'
+      };
+    }
+  }
 }
 
 module.exports = new AdminService();

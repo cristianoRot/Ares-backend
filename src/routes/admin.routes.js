@@ -32,4 +32,28 @@ router.post('/users/count', adminAuth, (req, res) => adminController.getUsersCou
  */
 router.post('/set-admin', adminAuth, (req, res) => adminController.setAdmin(req, res));
 
+/**
+ * @route   DELETE /admin/user
+ * @desc    Delete a user by email
+ * @access  Admin only (requires email and password in body)
+ * @body    { email: string, password: string, targetUserEmail: string }
+ */
+router.delete('/user', adminAuth, (req, res) => adminController.deleteUser(req, res));
+
+/**
+ * @route   POST /admin/user/disable
+ * @desc    Disable or enable a user by email
+ * @access  Admin only (requires email and password in body)
+ * @body    { email: string, password: string, targetUserEmail: string, disabled: boolean }
+ */
+router.post('/user/disable', adminAuth, (req, res) => adminController.setUserDisabled(req, res));
+
+/**
+ * @route   POST /admin/user/update
+ * @desc    Update user properties (displayName, customClaims)
+ * @access  Admin only (requires email and password in body)
+ * @body    { email: string, password: string, targetUserEmail: string, displayName?: string, customClaims?: object }
+ */
+router.post('/user/update', adminAuth, (req, res) => adminController.updateUser(req, res));
+
 module.exports = router;

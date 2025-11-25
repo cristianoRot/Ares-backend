@@ -60,7 +60,10 @@ app.get('/', (req, res) => {
       admin: {
         getAllUsers: 'POST /admin/users (Admin only - requires email/password)',
         getUsersCount: 'POST /admin/users/count (Admin only - requires email/password)',
-        setAdmin: 'POST /admin/set-admin (Admin only - grant/revoke admin privileges)'
+        setAdmin: 'POST /admin/set-admin (Admin only - grant/revoke admin privileges)',
+        deleteUser: 'DELETE /admin/user (Admin only - delete user)',
+        disableUser: 'POST /admin/user/disable (Admin only - disable/enable user)',
+        updateUser: 'POST /admin/user/update (Admin only - update user properties)'
       },
       legacy: {
         status: 'GET /status',

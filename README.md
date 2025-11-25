@@ -522,6 +522,145 @@ curl -X POST https://api.aresofficial.net/admin/set-admin \
 
 ---
 
+#### Admin - Delete User
+
+**DELETE** `/admin/user`
+
+Delete a user and all associated data. Only accessible by existing admins.
+
+**Authentication Required:** Admin only (requires email and password in request body)
+
+**Request:**
+```bash
+curl -X DELETE https://api.aresofficial.net/admin/user \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@example.com",
+    "password": "adminpassword",
+    "targetUserEmail": "user@example.com"
+  }'
+```
+
+**Request Body:**
+- `email` (string, required) - Admin user email (must be admin)
+- `password` (string, required) - Admin user password
+- `targetUserEmail` (string, required) - Email of user to delete
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "message": "User user@example.com deleted successfully",
+  "data": {
+    "uid": "firebase-user-id",
+    "email": "user@example.com"
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
+}
+```
+
+---
+
+#### Admin - Disable/Enable User
+
+**POST** `/admin/user/disable`
+
+Disable or enable a user account. Only accessible by existing admins.
+
+**Authentication Required:** Admin only (requires email and password in request body)
+
+**Request:**
+```bash
+curl -X POST https://api.aresofficial.net/admin/user/disable \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@example.com",
+    "password": "adminpassword",
+    "targetUserEmail": "user@example.com",
+    "disabled": true
+  }'
+```
+
+**Request Body:**
+- `email` (string, required) - Admin user email (must be admin)
+- `password` (string, required) - Admin user password
+- `targetUserEmail` (string, required) - Email of user to disable/enable
+- `disabled` (boolean, required) - `true` to disable, `false` to enable
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "message": "User user@example.com disabled successfully",
+  "data": {
+    "uid": "firebase-user-id",
+    "email": "user@example.com",
+    "disabled": true
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
+}
+```
+
+---
+
+#### Admin - Update User
+
+**POST** `/admin/user/update`
+
+Update user properties (displayName, customClaims). Only accessible by existing admins.
+
+**Authentication Required:** Admin only (requires email and password in request body)
+
+**Request:**
+```bash
+curl -X POST https://api.aresofficial.net/admin/user/update \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@example.com",
+    "password": "adminpassword",
+    "targetUserEmail": "user@example.com",
+    "displayName": "New Display Name",
+    "customClaims": {
+      "role": "premium",
+      "level": 10
+    }
+  }'
+```
+
+**Request Body:**
+- `email` (string, required) - Admin user email (must be admin)
+- `password` (string, required) - Admin user password
+- `targetUserEmail` (string, required) - Email of user to update
+- `displayName` (string, optional) - New display name
+- `customClaims` (object, optional) - Custom claims to set/update
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "message": "User updated successfully",
+  "data": {
+    "displayName": {
+      "uid": "firebase-user-id",
+      "email": "user@example.com",
+      "displayName": "New Display Name"
+    },
+    "customClaims": {
+      "uid": "firebase-user-id",
+      "email": "user@example.com",
+      "customClaims": {
+        "admin": false,
+        "role": "premium",
+        "level": 10
+      }
+    }
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
+}
+```
+
+---
+
 ## Data Models
 
 ### User Profile (Firestore Collection: `users`)
