@@ -53,8 +53,7 @@ app.get('/', (req, res) => {
       health: 'GET /health',
       auth: {
         register: 'POST /auth/register',
-        getUser: 'GET /auth/user/:uid',
-        getUserByUsername: 'GET /auth/user/username/:username',
+        getUser: 'POST /auth/user/:username (requires email/password in body)',
         deleteUser: 'DELETE /auth/user (requires email/password in body)'
       },
       admin: {

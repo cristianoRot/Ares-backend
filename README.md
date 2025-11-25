@@ -288,15 +288,28 @@ curl -X POST https://api.aresofficial.net/auth/register \
 
 ---
 
-#### Get User by UID
 
-**GET** `/auth/user/:uid`
+#### Get User by Username
 
-Retrieve user data by Firebase UID.
+**POST** `/auth/user/:username`
 
+Retrieve user data by username. Requires email and password in request body. Accessible only if:
+- The provided credentials match the user with the specified username, OR
+- The user making the request is an admin
+
+**Request:**
 ```bash
-curl https://api.aresofficial.net/auth/user/{uid}
+curl -X POST https://api.aresofficial.net/auth/user/player1 \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "player@example.com",
+    "password": "userpassword"
+  }'
 ```
+
+**Request Body:**
+- `email` (string, required) - Email of the user making the request
+- `password` (string, required) - Password of the user making the request
 
 **Success Response (200):**
 ```json
@@ -314,20 +327,45 @@ curl https://api.aresofficial.net/auth/user/{uid}
     "friends": [],
     "guns": [],
     "friendRequests": []
-  }
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
 }
 ```
 
----
+**Error Response (401):**
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INVALID_CREDENTIALS",
+    "message": "Invalid email or password"
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
+}
+```
 
-#### Get User by Username
+**Error Response (403):**
+```json
+{
+  "success": false,
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "You do not have permission to access this user data"
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
+}
+```
 
-**GET** `/auth/user/username/:username`
-
-Retrieve user data by username.
-
-```bash
-curl https://api.aresofficial.net/auth/user/username/player1
+**Error Response (404):**
+```json
+{
+  "success": false,
+  "error": {
+    "code": "USER_NOT_FOUND",
+    "message": "User not found"
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
+}
 ```
 
 ---

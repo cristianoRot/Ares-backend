@@ -16,18 +16,12 @@ const authController = require('../controllers/auth.controller');
 router.post('/register', (req, res) => authController.register(req, res));
 
 /**
- * @route   GET /auth/user/:uid
- * @desc    Ottiene un utente per UID
- * @access  Public (TODO: proteggere con auth middleware)
+ * @route   POST /auth/user/:username
+ * @desc    Get user data by username (requires email and password in body)
+ * @access  Public (requires valid credentials or admin privileges)
+ * @body    { email: string, password: string }
  */
-router.get('/user/:uid', (req, res) => authController.getUserByUid(req, res));
-
-/**
- * @route   GET /auth/user/username/:username
- * @desc    Ottiene un utente per username
- * @access  Public (TODO: proteggere con auth middleware)
- */
-router.get('/user/username/:username', (req, res) => authController.getUserByUsername(req, res));
+router.post('/user/:username', (req, res) => authController.getUserByUsername(req, res));
 
 /**
  * @route   DELETE /auth/user

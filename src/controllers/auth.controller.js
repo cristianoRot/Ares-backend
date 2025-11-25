@@ -109,36 +109,40 @@ class AuthController {
   }
 
   /**
-   * GET /auth/user/username/:username
-   * Get user data by username
+   * POST /auth/user/:username
+   * Get user data by username (requires email and password in body)
+   * Accessible only if credentials match the username OR if user is admin
    */
   async getUserByUsername(req, res) {
     try {
       const { username } = req.params;
+      const { email, password } = req.body;
 
+      // Validate input
       if (!username) {
         return res.status(400).json({
           success: false,
           error: {
             code: 'MISSING_USERNAME',
-            message: 'Username is required'
+            message: 'Username is required in URL path'
           },
           timestamp: new Date().toISOString()
         });
       }
 
-      const user = await authService.getUserByUsername(username);
-
-      if (!user) {
-        return res.status(404).json({
+      if (!email || !password) {
+        return res.status(400).json({
           success: false,
           error: {
-            code: 'USER_NOT_FOUND',
-            message: 'User not found'
+            code: 'MISSING_CREDENTIALS',
+            message: 'Email and password are required in request body'
           },
           timestamp: new Date().toISOString()
         });
       }
+
+      // Get user with authentication check
+      const user = await authService.getUserByUsernameWithAuth(username, email, password);
 
       return res.status(200).json({
         success: true,
@@ -147,6 +151,39 @@ class AuthController {
       });
     } catch (error) {
       console.error('Get user error:', error);
+      
+      if (error.code === 'USER_NOT_FOUND') {
+        return res.status(404).json({
+          success: false,
+          error: {
+            code: 'USER_NOT_FOUND',
+            message: error.message || 'User not found'
+          },
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      if (error.code === 'INVALID_CREDENTIALS') {
+        return res.status(401).json({
+          success: false,
+          error: {
+            code: 'INVALID_CREDENTIALS',
+            message: error.message || 'Invalid email or password'
+          },
+          timestamp: new Date().toISOString()
+        });
+      }
+
+      if (error.code === 'FORBIDDEN') {
+        return res.status(403).json({
+          success: false,
+          error: {
+            code: 'FORBIDDEN',
+            message: error.message || 'You do not have permission to access this user data'
+          },
+          timestamp: new Date().toISOString()
+        });
+      }
       
       return res.status(500).json({
         success: false,

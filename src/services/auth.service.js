@@ -130,6 +130,75 @@ class AuthService {
   }
 
   /**
+   * Verify credentials and get user by username
+   * Returns user data if credentials match the username OR if user is admin
+   */
+  async getUserByUsernameWithAuth(username, email, password) {
+    try {
+      // Get user by username
+      const user = await this.getUserByUsername(username);
+      if (!user) {
+        throw {
+          code: 'USER_NOT_FOUND',
+          message: 'User not found'
+        };
+      }
+
+      // Get Firebase Auth user record by email
+      let userRecord;
+      try {
+        userRecord = await admin.auth().getUserByEmail(email.trim());
+      } catch (error) {
+        throw {
+          code: 'INVALID_CREDENTIALS',
+          message: 'Invalid email or password'
+        };
+      }
+
+      // Verify password using Firebase REST API if Web API Key is available
+      if (process.env.FIREBASE_WEB_API_KEY) {
+        try {
+          const axios = require('axios');
+          await axios.post(
+            `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_WEB_API_KEY}`,
+            {
+              email: email.trim(),
+              password: password,
+              returnSecureToken: true
+            }
+          );
+        } catch (error) {
+          throw {
+            code: 'INVALID_CREDENTIALS',
+            message: 'Invalid email or password'
+          };
+        }
+      } else {
+        console.warn('[AuthService] FIREBASE_WEB_API_KEY not set. Password verification skipped.');
+      }
+
+      // Check if credentials match the username OR if user is admin
+      const customClaims = userRecord.customClaims || {};
+      const isAdmin = customClaims.admin === true;
+      const credentialsMatch = userRecord.uid === user.uid;
+
+      if (!credentialsMatch && !isAdmin) {
+        throw {
+          code: 'FORBIDDEN',
+          message: 'You do not have permission to access this user data'
+        };
+      }
+
+      return user;
+    } catch (error) {
+      if (error.code === 'USER_NOT_FOUND' || error.code === 'INVALID_CREDENTIALS' || error.code === 'FORBIDDEN') {
+        throw error;
+      }
+      throw this.handleFirebaseError(error);
+    }
+  }
+
+  /**
    * Delete user by email and password (verifies credentials first)
    */
   async deleteUserByCredentials(email, password) {
