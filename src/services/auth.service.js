@@ -131,7 +131,7 @@ class AuthService {
 
   /**
    * Verify credentials and get user by username
-   * Returns user data if credentials match the username OR if user is admin
+   * Returns user data if credentials match the username OR if user is admin (with valid password)
    */
   async getUserByUsernameWithAuth(username, email, password) {
     try {
@@ -155,7 +155,20 @@ class AuthService {
         };
       }
 
-      // Verify password using Firebase REST API if Web API Key is available
+      // Check if credentials match the username OR if user is admin
+      const customClaims = userRecord.customClaims || {};
+      const isAdmin = customClaims.admin === true;
+      const credentialsMatch = userRecord.uid === user.uid;
+
+      // If credentials don't match and user is not admin, deny access
+      if (!credentialsMatch && !isAdmin) {
+        throw {
+          code: 'FORBIDDEN',
+          message: 'You do not have permission to access this user data'
+        };
+      }
+
+      // Verify password using Firebase REST API (required for both matching credentials and admin access)
       if (process.env.FIREBASE_WEB_API_KEY) {
         try {
           const axios = require('axios');
@@ -168,30 +181,27 @@ class AuthService {
             }
           );
         } catch (error) {
+          // Password verification failed - deny access even for admins
           throw {
             code: 'INVALID_CREDENTIALS',
             message: 'Invalid email or password'
           };
         }
       } else {
-        console.warn('[AuthService] FIREBASE_WEB_API_KEY not set. Password verification skipped.');
-      }
-
-      // Check if credentials match the username OR if user is admin
-      const customClaims = userRecord.customClaims || {};
-      const isAdmin = customClaims.admin === true;
-      const credentialsMatch = userRecord.uid === user.uid;
-
-      if (!credentialsMatch && !isAdmin) {
-        throw {
-          code: 'FORBIDDEN',
-          message: 'You do not have permission to access this user data'
-        };
+        // If Web API Key is not available, we cannot verify password
+        // This is a security risk - deny access if credentials don't match
+        if (!credentialsMatch) {
+          throw {
+            code: 'MISSING_CONFIGURATION',
+            message: 'Password verification is required but not configured. Cannot verify admin access.'
+          };
+        }
+        console.warn('[AuthService] FIREBASE_WEB_API_KEY not set. Password verification skipped for matching credentials.');
       }
 
       return user;
     } catch (error) {
-      if (error.code === 'USER_NOT_FOUND' || error.code === 'INVALID_CREDENTIALS' || error.code === 'FORBIDDEN') {
+      if (error.code === 'USER_NOT_FOUND' || error.code === 'INVALID_CREDENTIALS' || error.code === 'FORBIDDEN' || error.code === 'MISSING_CONFIGURATION') {
         throw error;
       }
       throw this.handleFirebaseError(error);
