@@ -131,7 +131,7 @@ class AuthService {
 
   /**
    * Verify credentials and get user by username
-   * Returns user data if credentials match the username OR if user is admin
+   * Returns user data only if credentials match the username (no admin bypass)
    */
   async getUserByUsernameWithAuth(username, email, password) {
     try {
@@ -163,7 +163,7 @@ class AuthService {
         };
       }
 
-      // Verify password - this must succeed for both regular users and admins
+      // Verify password
       try {
         const axios = require('axios');
         await axios.post(
@@ -185,19 +185,17 @@ class AuthService {
             };
           }
         }
-        // Password verification failed - reject even if user is admin
+        // Password verification failed
         throw {
           code: 'INVALID_CREDENTIALS',
           message: 'Invalid email or password'
         };
       }
 
-      // Check if credentials match the username OR if user is admin
-      const customClaims = userRecord.customClaims || {};
-      const isAdmin = customClaims.admin === true;
+      // Verify that credentials match the username (strict check, no admin bypass)
       const credentialsMatch = userRecord.uid === user.uid;
 
-      if (!credentialsMatch && !isAdmin) {
+      if (!credentialsMatch) {
         throw {
           code: 'FORBIDDEN',
           message: 'You do not have permission to access this user data'

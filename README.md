@@ -288,9 +288,7 @@ curl -X POST https://api.aresofficial.net/auth/register \
 
 **POST** `/auth/user/:username`
 
-Retrieve user data by username. Requires email and password in request body. Accessible only if:
-- The provided credentials match the user with the specified username, OR
-- The user making the request is an admin
+Retrieve user data by username. Requires email and password in request body. Accessible only if the provided credentials match the user with the specified username.
 
 **Request:**
 ```bash
@@ -342,7 +340,7 @@ curl -X POST https://api.aresofficial.net/auth/user/player1 \
 {
   "error": {
     "code": "FORBIDDEN",
-    "message": "You do not have permission to access this user data"
+    "message": "You do not have permission to access this user data. Credentials must match the requested username."
   },
   "timestamp": "2025-10-20T12:00:00.000Z"
 }
