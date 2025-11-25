@@ -175,6 +175,16 @@ class AuthService {
           }
         );
       } catch (error) {
+        // Check if it's a Firebase authentication error
+        if (error.response && error.response.data && error.response.data.error) {
+          const firebaseError = error.response.data.error;
+          if (firebaseError.message === 'EMAIL_NOT_FOUND' || firebaseError.message === 'INVALID_PASSWORD') {
+            throw {
+              code: 'INVALID_CREDENTIALS',
+              message: 'Invalid email or password'
+            };
+          }
+        }
         // Password verification failed - reject even if user is admin
         throw {
           code: 'INVALID_CREDENTIALS',
@@ -196,10 +206,23 @@ class AuthService {
 
       return user;
     } catch (error) {
-      if (error.code === 'USER_NOT_FOUND' || error.code === 'INVALID_CREDENTIALS' || error.code === 'FORBIDDEN') {
+      // Re-throw known error codes
+      if (error.code === 'USER_NOT_FOUND' || 
+          error.code === 'INVALID_CREDENTIALS' || 
+          error.code === 'FORBIDDEN' ||
+          error.code === 'SERVER_CONFIGURATION_ERROR') {
         throw error;
       }
-      throw this.handleFirebaseError(error);
+      // Handle Firebase errors
+      if (error.code && error.code.startsWith('auth/')) {
+        throw this.handleFirebaseError(error);
+      }
+      // Log unexpected errors for debugging
+      console.error('Unexpected error in getUserByUsernameWithAuth:', error);
+      throw {
+        code: 'INTERNAL_ERROR',
+        message: error.message || 'An unexpected error occurred'
+      };
     }
   }
 

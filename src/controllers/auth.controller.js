@@ -171,11 +171,21 @@ class AuthController {
           timestamp: new Date().toISOString()
         });
       }
+
+      if (error.code === 'SERVER_CONFIGURATION_ERROR') {
+        return res.status(500).json({
+          error: {
+            code: 'SERVER_CONFIGURATION_ERROR',
+            message: error.message || 'Server configuration error'
+          },
+          timestamp: new Date().toISOString()
+        });
+      }
       
       return res.status(500).json({
         error: {
-          code: 'INTERNAL_ERROR',
-          message: 'An error occurred while retrieving user data'
+          code: error.code || 'INTERNAL_ERROR',
+          message: error.message || 'An error occurred while retrieving user data'
         },
         timestamp: new Date().toISOString()
       });
