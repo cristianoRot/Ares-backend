@@ -12,129 +12,92 @@ class AuthService {
    * Replicates the logic from FirebaseAuthManager.Register() in Unity
    */
   async register(email, password, username) {
-    try {
-      // 1. Create user in Firebase Auth
-      const userRecord = await admin.auth().createUser({
-        email: email,
-        password: password,
-        displayName: username
-      });
+    const userRecord = await admin.auth().createUser({
+      email: email,
+      password: password,
+      displayName: username
+    });
 
-      // 2. Save username in "usernames" collection (for uniqueness)
-      await this.saveUsername(username, userRecord.uid);
+    await this.saveUsername(username, userRecord.uid);
+    const userProfile = await this.createUserProfile(userRecord.uid, username, email);
 
-      // 3. Create user profile in "users" collection
-      const userProfile = await this.createUserProfile(userRecord.uid, username, email);
-
-      return {
-        success: true,
-        user: {
-          uid: userRecord.uid,
-          email: userRecord.email,
-          username: username,
-          profile: userProfile
-        }
-      };
-    } catch (error) {
-      throw this.handleFirebaseError(error);
-    }
+    return {
+      user: {
+        uid: userRecord.uid,
+        email: userRecord.email,
+        username: username,
+        profile: userProfile
+      }
+    };
   }
 
   /**
    * Save username in "usernames" collection
-   * Allows checking uniqueness and username -> uid lookup
    */
   async saveUsername(username, uid) {
-    try {
-      const usernameRef = db.collection('usernames').doc(username);
-      
-      // Check if username is already taken
-      const usernameDoc = await usernameRef.get();
-      if (usernameDoc.exists) {
-        throw {
-          code: 'auth/username-already-exists',
-          message: 'Username is already taken'
-        };
-      }
-
-      // Save username -> uid mapping
-      await usernameRef.set({
-        uid: uid,
-        createdAt: new Date().toISOString()
-      });
-
-      return true;
-    } catch (error) {
-      throw error;
+    const usernameRef = db.collection('usernames').doc(username);
+    const usernameDoc = await usernameRef.get();
+    
+    if (usernameDoc.exists) {
+      throw {
+        code: 'auth/username-already-exists',
+        message: 'Username is already taken'
+      };
     }
+
+    await usernameRef.set({
+      uid: uid,
+      createdAt: new Date().toISOString()
+    });
   }
 
   /**
    * Create initial user profile in "users" collection
-   * Replicates the logic from CreateNewProfileData() in Unity
    */
   async createUserProfile(uid, username, email) {
-    try {
-      const userModel = new UserModel({
-        uid: uid,
-        username: username,
-        email: email,
-        coins: 0,
-        xp: 0,
-        kills: 0,
-        deaths: 0,
-        matches: 0,
-        skinTag: 0,
-        friends: [],
-        guns: [],
-        friendRequests: []
-      });
+    const userModel = new UserModel({
+      uid: uid,
+      username: username,
+      email: email,
+      coins: 0,
+      xp: 0,
+      kills: 0,
+      deaths: 0,
+      matches: 0,
+      skinTag: 0,
+      friends: [],
+      guns: [],
+      friendRequests: []
+    });
 
-      const userRef = db.collection('users').doc(uid);
-      await userRef.set(userModel.toFirestore());
-
-      return userModel;
-    } catch (error) {
-      throw error;
-    }
+    await db.collection('users').doc(uid).set(userModel.toFirestore());
+    return userModel;
   }
 
   /**
    * Get user by UID
    */
   async getUserByUid(uid) {
-    try {
-      const userDoc = await db.collection('users').doc(uid).get();
-      return UserModel.fromFirestore(userDoc);
-    } catch (error) {
-      throw error;
-    }
+    const userDoc = await db.collection('users').doc(uid).get();
+    return UserModel.fromFirestore(userDoc);
   }
 
   /**
    * Get user by username
    */
   async getUserByUsername(username) {
-    try {
-      // First find uid from username
-      const usernameDoc = await db.collection('usernames').doc(username).get();
-      if (!usernameDoc.exists) {
-        return null;
-      }
-
-      const uid = usernameDoc.data().uid;
-      return await this.getUserByUid(uid);
-    } catch (error) {
-      throw error;
+    const usernameDoc = await db.collection('usernames').doc(username).get();
+    if (!usernameDoc.exists) {
+      return null;
     }
+    const uid = usernameDoc.data().uid;
+    return await this.getUserByUid(uid);
   }
 
   /**
-   * Get user by username with credential verification
-   * Verifies email and password before returning user data
+   * Verify password using Firebase REST API
    */
-  async getUserByUsernameWithAuth(username, email, password) {
-    // 1. Check if FIREBASE_WEB_API_KEY is configured
+  async verifyPassword(email, password) {
     if (!process.env.FIREBASE_WEB_API_KEY) {
       throw {
         code: 'SERVER_CONFIGURATION_ERROR',
@@ -142,13 +105,6 @@ class AuthService {
       };
     }
 
-    // 2. Get user by username from Firestore
-    const user = await this.getUserByUsername(username);
-    if (!user) {
-      throw { code: 'USER_NOT_FOUND', message: 'User not found' };
-    }
-
-    // 3. Verify credentials using Firebase REST API
     const axios = require('axios');
     try {
       const response = await axios.post(
@@ -159,117 +115,62 @@ class AuthService {
           returnSecureToken: true
         }
       );
-
-      // 4. Verify that the authenticated user matches the requested username
-      const authenticatedUid = response.data.localId;
-      if (authenticatedUid !== user.uid) {
-        throw { code: 'FORBIDDEN', message: 'Credentials do not match the requested username' };
-      }
-
-      // 5. Return user data if everything matches
-      return user;
+      return response.data.localId;
     } catch (error) {
-      // Re-throw our custom errors
-      if (error.code && (error.code === 'USER_NOT_FOUND' || error.code === 'FORBIDDEN' || error.code === 'SERVER_CONFIGURATION_ERROR')) {
-        throw error;
-      }
-      
-      // Handle axios/Firebase authentication errors
-      if (error.response) {
-        const errorData = error.response.data?.error;
-        if (errorData) {
-          // Firebase returns specific error messages for invalid credentials
-          if (errorData.message === 'EMAIL_NOT_FOUND' || 
-              errorData.message === 'INVALID_PASSWORD' ||
-              errorData.message === 'INVALID_EMAIL' ||
-              error.response.status === 400) {
-            throw { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' };
-          }
-        }
-        // Any 400 error from Firebase Auth is likely invalid credentials
-        if (error.response.status === 400) {
-          throw { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' };
-        }
-      }
-      
-      // Default to invalid credentials for any other error
       throw { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' };
     }
+  }
+
+  /**
+   * Get user by username with credential verification
+   */
+  async getUserByUsernameWithAuth(username, email, password) {
+    const user = await this.getUserByUsername(username);
+    if (!user) {
+      throw { code: 'USER_NOT_FOUND', message: 'User not found' };
+    }
+
+    const authenticatedUid = await this.verifyPassword(email, password);
+    
+    if (authenticatedUid !== user.uid) {
+      throw { code: 'FORBIDDEN', message: 'Credentials do not match the requested username' };
+    }
+
+    return user;
   }
 
   /**
    * Delete user by email and password (verifies credentials first)
    */
   async deleteUserByCredentials(email, password) {
+    let userRecord;
     try {
-      // Get user by email
-      let userRecord;
-      try {
-        userRecord = await admin.auth().getUserByEmail(email.trim());
-      } catch (error) {
-        throw {
-          code: 'INVALID_CREDENTIALS',
-          message: 'Invalid email or password'
-        };
-      }
-
-      // Verify password using Firebase REST API if Web API Key is available
-      if (process.env.FIREBASE_WEB_API_KEY) {
-        try {
-          const axios = require('axios');
-          await axios.post(
-            `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_WEB_API_KEY}`,
-            {
-              email: email.trim(),
-              password: password,
-              returnSecureToken: true
-            }
-          );
-        } catch (error) {
-          throw {
-            code: 'INVALID_CREDENTIALS',
-            message: 'Invalid email or password'
-          };
-        }
-      } else {
-        console.warn('[AuthService] FIREBASE_WEB_API_KEY not set. Password verification skipped.');
-      }
-
-      // If credentials are valid, proceed with deletion
-      return await this.deleteUser(userRecord.uid);
+      userRecord = await admin.auth().getUserByEmail(email.trim());
     } catch (error) {
-      if (error.code === 'INVALID_CREDENTIALS') {
-        throw error;
-      }
-      throw this.handleFirebaseError(error);
+      throw { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' };
     }
+
+    await this.verifyPassword(email, password);
+    await this.deleteUser(userRecord.uid);
+    
+    return { message: 'User deleted successfully' };
   }
 
   /**
    * Delete user and all associated data by UID
    */
   async deleteUser(uid) {
-    try {
-      // Get username before deleting the document
-      const userDoc = await db.collection('users').doc(uid).get();
-      if (userDoc.exists) {
-        const username = userDoc.data().username;
-        
-        // Delete from Firebase Auth
-        await admin.auth().deleteUser(uid);
-        
-        // Delete username document
-        if (username) {
-          await db.collection('usernames').doc(username).delete();
-        }
-        
-        // Delete user profile
-        await db.collection('users').doc(uid).delete();
+    const userDoc = await db.collection('users').doc(uid).get();
+    if (userDoc.exists) {
+      const username = userDoc.data().username;
+      
+      await admin.auth().deleteUser(uid);
+      
+      if (username) {
+        await db.collection('usernames').doc(username).delete();
       }
-
-      return { success: true, message: 'User deleted successfully' };
-    } catch (error) {
-      throw this.handleFirebaseError(error);
+      
+      await db.collection('users').doc(uid).delete();
     }
   }
 

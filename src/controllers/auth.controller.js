@@ -54,52 +54,6 @@ class AuthController {
     }
   }
 
-  /**
-   * GET /auth/user/:uid
-   * Get user data by UID
-   */
-  async getUserByUid(req, res) {
-    try {
-      const { uid } = req.params;
-
-      if (!uid) {
-        return res.status(400).json({
-          error: {
-            code: 'MISSING_UID',
-            message: 'User UID is required'
-          },
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      const user = await authService.getUserByUid(uid);
-
-      if (!user) {
-        return res.status(404).json({
-          error: {
-            code: 'USER_NOT_FOUND',
-            message: 'User not found'
-          },
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      return res.status(200).json({
-        data: user.toFirestore(),
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      console.error('Get user error:', error);
-      
-      return res.status(500).json({
-        error: {
-          code: 'INTERNAL_ERROR',
-          message: 'An error occurred while retrieving user data'
-        },
-        timestamp: new Date().toISOString()
-      });
-    }
-  }
 
   /**
    * POST /auth/user/:username

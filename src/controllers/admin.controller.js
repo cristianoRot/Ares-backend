@@ -40,11 +40,7 @@ class AdminController {
       const result = await adminService.getUsersCount();
 
       return res.status(200).json({
-        message: 'Users count retrieved successfully',
-        data: {
-          count: result.count
-        },
-        timestamp: new Date().toISOString()
+        count: result.count
       });
     } catch (error) {
       console.error('Get users count error:', error);
@@ -87,8 +83,7 @@ class AdminController {
 
       return res.status(200).json({
         message: result.message,
-        data: result.data,
-        timestamp: new Date().toISOString()
+        data: result.data
       });
     } catch (error) {
       console.error('Set admin error:', error);
@@ -128,8 +123,7 @@ class AdminController {
 
       return res.status(200).json({
         message: result.message,
-        data: result.data,
-        timestamp: new Date().toISOString()
+        data: result.data
       });
     } catch (error) {
       console.error('Delete user error:', error);
@@ -172,8 +166,7 @@ class AdminController {
 
       return res.status(200).json({
         message: result.message,
-        data: result.data,
-        timestamp: new Date().toISOString()
+        data: result.data
       });
     } catch (error) {
       console.error('Set user disabled error:', error);
@@ -238,9 +231,8 @@ class AdminController {
       const profileResult = await adminService.updateUserProfile(targetUserEmail, profileData);
 
       return res.status(200).json({
-        message: 'User profile updated successfully',
-        data: profileResult.data,
-        timestamp: new Date().toISOString()
+        message: profileResult.message,
+        data: profileResult.data
       });
     } catch (error) {
       console.error('Update user error:', error);
