@@ -619,14 +619,12 @@ curl -X POST https://api.aresofficial.net/admin/user/update \
     "email": "admin@example.com",
     "password": "adminpassword",
     "targetUserEmail": "user@example.com",
-    "profile": {
-      "coins": 10000,
-      "xp": 5000,
-      "kills": 100,
-      "deaths": 50,
-      "matches": 25,
-      "skinTag": 5
-    }
+    "coins": 10000,
+    "xp": 5000,
+    "kills": 100,
+    "deaths": 50,
+    "matches": 25,
+    "skinTag": 5
   }'
 ```
 
@@ -634,16 +632,17 @@ curl -X POST https://api.aresofficial.net/admin/user/update \
 - `email` (string, required) - Admin user email (must be admin)
 - `password` (string, required) - Admin user password
 - `targetUserEmail` (string, required) - Email of user to update
-- `profile` (object, required) - Profile data to update (Firestore):
-  - `coins` (number, optional) - Update coins
-  - `xp` (number, optional) - Update experience points
-  - `kills` (number, optional) - Update kills count
-  - `deaths` (number, optional) - Update deaths count
-  - `matches` (number, optional) - Update matches count
-  - `skinTag` (number, optional) - Update skin tag
-  - `friends` (array, optional) - Update friends list
-  - `guns` (array, optional) - Update guns list
-  - `friendRequests` (array, optional) - Update friend requests list
+- `coins` (number, optional) - Update coins
+- `xp` (number, optional) - Update experience points
+- `kills` (number, optional) - Update kills count
+- `deaths` (number, optional) - Update deaths count
+- `matches` (number, optional) - Update matches count
+- `skinTag` (number, optional) - Update skin tag
+- `friends` (array, optional) - Update friends list
+- `guns` (array, optional) - Update guns list
+- `friendRequests` (array, optional) - Update friend requests list
+
+**Note:** Include only the fields you want to update. All profile fields are optional, but at least one must be provided.
 
 **Success Response (200):**
 ```json
@@ -676,9 +675,21 @@ curl -X POST https://api.aresofficial.net/admin/user/update \
     "email": "admin@example.com",
     "password": "adminpassword",
     "targetUserEmail": "user@example.com",
-    "profile": {
-      "coins": 50000
-    }
+    "coins": 50000
+  }'
+```
+
+**Example: Update multiple fields**
+```bash
+curl -X POST https://api.aresofficial.net/admin/user/update \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@example.com",
+    "password": "adminpassword",
+    "targetUserEmail": "user@example.com",
+    "coins": 100000,
+    "xp": 20000,
+    "kills": 500
   }'
 ```
 

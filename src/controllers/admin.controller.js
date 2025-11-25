@@ -210,10 +210,11 @@ class AdminController {
    * POST /admin/user/update
    * Update user profile data in Firestore only (coins, xp, kills, etc.)
    * Only accessible by existing admins
+   * Accepts profile fields directly in the body (not nested in profile object)
    */
   async updateUser(req, res) {
     try {
-      const { targetUserEmail, profile } = req.body;
+      const { targetUserEmail, email, password, ...profileFields } = req.body;
 
       // Validate input
       if (!targetUserEmail) {
@@ -227,20 +228,34 @@ class AdminController {
         });
       }
 
-      // Validate profile data
-      if (!profile || typeof profile !== 'object') {
+      // Define allowed profile fields
+      const allowedFields = ['coins', 'xp', 'kills', 'deaths', 'matches', 'skinTag', 'friends', 'guns', 'friendRequests'];
+      
+      // Filter only allowed fields that are provided
+      const profileData = {};
+      let hasValidField = false;
+      
+      for (const field of allowedFields) {
+        if (profileFields[field] !== undefined) {
+          profileData[field] = profileFields[field];
+          hasValidField = true;
+        }
+      }
+
+      // Validate that at least one profile field is provided
+      if (!hasValidField) {
         return res.status(400).json({
           success: false,
           error: {
-            code: 'MISSING_PROFILE',
-            message: 'profile object is required in request body'
+            code: 'MISSING_FIELDS',
+            message: `At least one profile field must be provided. Allowed fields: ${allowedFields.join(', ')}`
           },
           timestamp: new Date().toISOString()
         });
       }
 
       // Update profile data (coins, xp, kills, etc.)
-      const profileResult = await adminService.updateUserProfile(targetUserEmail, profile);
+      const profileResult = await adminService.updateUserProfile(targetUserEmail, profileData);
 
       return res.status(200).json({
         success: true,
