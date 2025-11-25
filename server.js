@@ -55,7 +55,7 @@ app.get('/', (req, res) => {
         register: 'POST /auth/register',
         getUser: 'GET /auth/user/:uid',
         getUserByUsername: 'GET /auth/user/username/:username',
-        deleteUser: 'DELETE /auth/user/:uid'
+        deleteUser: 'DELETE /auth/user (requires email/password in body)'
       },
       admin: {
         getAllUsers: 'POST /admin/users (Admin only - requires email/password)',

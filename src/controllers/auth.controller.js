@@ -160,25 +160,27 @@ class AuthController {
   }
 
   /**
-   * DELETE /auth/user/:uid
-   * Delete a user
+   * DELETE /auth/user
+   * Delete a user by email and password
    */
   async deleteUser(req, res) {
     try {
-      const { uid } = req.params;
+      const { email, password } = req.body;
 
-      if (!uid) {
+      // Validate input
+      if (!email || !password) {
         return res.status(400).json({
           success: false,
           error: {
-            code: 'MISSING_UID',
-            message: 'User UID is required'
+            code: 'MISSING_CREDENTIALS',
+            message: 'Email and password are required in request body'
           },
           timestamp: new Date().toISOString()
         });
       }
 
-      const result = await authService.deleteUser(uid);
+      // Verify credentials and delete user
+      const result = await authService.deleteUserByCredentials(email, password);
 
       return res.status(200).json({
         success: true,
@@ -188,10 +190,10 @@ class AuthController {
     } catch (error) {
       console.error('Delete user error:', error);
       
-      return res.status(500).json({
+      return res.status(400).json({
         success: false,
         error: {
-          code: 'INTERNAL_ERROR',
+          code: error.code || 'INTERNAL_ERROR',
           message: error.message || 'An error occurred while deleting the user'
         },
         timestamp: new Date().toISOString()

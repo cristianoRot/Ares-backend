@@ -30,11 +30,12 @@ router.get('/user/:uid', (req, res) => authController.getUserByUid(req, res));
 router.get('/user/username/:username', (req, res) => authController.getUserByUsername(req, res));
 
 /**
- * @route   DELETE /auth/user/:uid
- * @desc    Elimina un utente
- * @access  Public (TODO: proteggere con auth middleware)
+ * @route   DELETE /auth/user
+ * @desc    Delete a user by email and password
+ * @access  Public
+ * @body    { email: string, password: string }
  */
-router.delete('/user/:uid', (req, res) => authController.deleteUser(req, res));
+router.delete('/user', (req, res) => authController.deleteUser(req, res));
 
 module.exports = router;
 

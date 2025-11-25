@@ -130,7 +130,55 @@ class AuthService {
   }
 
   /**
-   * Delete user and all associated data
+   * Delete user by email and password (verifies credentials first)
+   */
+  async deleteUserByCredentials(email, password) {
+    try {
+      // Get user by email
+      let userRecord;
+      try {
+        userRecord = await admin.auth().getUserByEmail(email.trim());
+      } catch (error) {
+        throw {
+          code: 'INVALID_CREDENTIALS',
+          message: 'Invalid email or password'
+        };
+      }
+
+      // Verify password using Firebase REST API if Web API Key is available
+      if (process.env.FIREBASE_WEB_API_KEY) {
+        try {
+          const axios = require('axios');
+          await axios.post(
+            `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_WEB_API_KEY}`,
+            {
+              email: email.trim(),
+              password: password,
+              returnSecureToken: true
+            }
+          );
+        } catch (error) {
+          throw {
+            code: 'INVALID_CREDENTIALS',
+            message: 'Invalid email or password'
+          };
+        }
+      } else {
+        console.warn('[AuthService] FIREBASE_WEB_API_KEY not set. Password verification skipped.');
+      }
+
+      // If credentials are valid, proceed with deletion
+      return await this.deleteUser(userRecord.uid);
+    } catch (error) {
+      if (error.code === 'INVALID_CREDENTIALS') {
+        throw error;
+      }
+      throw this.handleFirebaseError(error);
+    }
+  }
+
+  /**
+   * Delete user and all associated data by UID
    */
   async deleteUser(uid) {
     try {

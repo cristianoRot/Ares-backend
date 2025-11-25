@@ -333,19 +333,42 @@ curl https://api.aresofficial.net/auth/user/username/player1
 
 #### Delete User
 
-**DELETE** `/auth/user/:uid`
+**DELETE** `/auth/user`
 
-Delete a user and all associated data.
+Delete a user and all associated data. Requires email and password verification.
 
+**Request:**
 ```bash
-curl -X DELETE https://api.aresofficial.net/auth/user/{uid}
+curl -X DELETE https://api.aresofficial.net/auth/user \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "user@example.com",
+    "password": "userpassword"
+  }'
 ```
+
+**Request Body:**
+- `email` (string, required) - User email
+- `password` (string, required) - User password
 
 **Success Response (200):**
 ```json
 {
   "success": true,
-  "message": "User deleted successfully"
+  "message": "User deleted successfully",
+  "timestamp": "2025-10-20T12:00:00.000Z"
+}
+```
+
+**Error Response (400):**
+```json
+{
+  "success": false,
+  "error": {
+    "code": "INVALID_CREDENTIALS",
+    "message": "Invalid email or password"
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
 }
 ```
 
