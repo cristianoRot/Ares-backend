@@ -297,6 +297,71 @@ class AdminService {
       };
     }
   }
+
+  /**
+   * Update user profile data in Firestore (admin only)
+   * Can update: coins, xp, kills, deaths, matches, skinTag, friends, guns, friendRequests
+   */
+  async updateUserProfile(targetUserEmail, profileData) {
+    try {
+      // Get user by email
+      const userRecord = await admin.auth().getUserByEmail(targetUserEmail.trim());
+      const uid = userRecord.uid;
+
+      // Get current profile
+      const userDoc = await db.collection('users').doc(uid).get();
+      if (!userDoc.exists) {
+        throw {
+          code: 'PROFILE_NOT_FOUND',
+          message: `User profile not found for ${targetUserEmail}`
+        };
+      }
+
+      // Prepare update data (only include allowed fields)
+      const allowedFields = ['coins', 'xp', 'kills', 'deaths', 'matches', 'skinTag', 'friends', 'guns', 'friendRequests'];
+      const updateData = {};
+      
+      for (const field of allowedFields) {
+        if (profileData[field] !== undefined) {
+          updateData[field] = profileData[field];
+        }
+      }
+
+      // Add updatedAt timestamp
+      updateData.updatedAt = new Date().toISOString();
+
+      // Update Firestore document
+      await db.collection('users').doc(uid).update(updateData);
+
+      // Get updated profile
+      const updatedDoc = await db.collection('users').doc(uid).get();
+      const updatedData = updatedDoc.data();
+
+      return {
+        success: true,
+        message: `User profile updated successfully for ${targetUserEmail}`,
+        data: {
+          uid: uid,
+          email: targetUserEmail,
+          profile: updatedData
+        }
+      };
+    } catch (error) {
+      if (error.code === 'auth/user-not-found') {
+        throw {
+          code: 'USER_NOT_FOUND',
+          message: `User with email ${targetUserEmail} not found`
+        };
+      }
+      if (error.code === 'PROFILE_NOT_FOUND') {
+        throw error;
+      }
+      throw {
+        code: 'ADMIN_ERROR',
+        message: error.message || 'Failed to update user profile'
+      };
+    }
+  }
 }
 
 module.exports = new AdminService();

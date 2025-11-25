@@ -208,12 +208,12 @@ class AdminController {
 
   /**
    * POST /admin/user/update
-   * Update user properties (displayName, customClaims, etc.)
+   * Update user properties (displayName, customClaims, profile data)
    * Only accessible by existing admins
    */
   async updateUser(req, res) {
     try {
-      const { targetUserEmail, displayName, customClaims } = req.body;
+      const { targetUserEmail, displayName, customClaims, profile } = req.body;
 
       // Validate input
       if (!targetUserEmail) {
@@ -241,13 +241,19 @@ class AdminController {
         results.customClaims = claimsResult.data;
       }
 
+      // Update profile data if provided (coins, xp, kills, etc.)
+      if (profile !== undefined && typeof profile === 'object') {
+        const profileResult = await adminService.updateUserProfile(targetUserEmail, profile);
+        results.profile = profileResult.data;
+      }
+
       // If nothing was updated
       if (Object.keys(results).length === 0) {
         return res.status(400).json({
           success: false,
           error: {
             code: 'MISSING_FIELDS',
-            message: 'At least one field (displayName or customClaims) must be provided'
+            message: 'At least one field (displayName, customClaims, or profile) must be provided'
           },
           timestamp: new Date().toISOString()
         });
