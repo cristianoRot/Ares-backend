@@ -142,50 +142,22 @@ class AuthController {
     } catch (error) {
       console.error('Get user error:', error);
       
-      if (error.code === 'USER_NOT_FOUND') {
-        return res.status(404).json({
-          error: {
-            code: 'USER_NOT_FOUND',
-            message: error.message || 'User not found'
-          },
-          timestamp: new Date().toISOString()
-        });
-      }
+      // Map error codes to HTTP status codes
+      const errorMap = {
+        'USER_NOT_FOUND': 404,
+        'INVALID_CREDENTIALS': 401,
+        'FORBIDDEN': 403,
+        'SERVER_CONFIGURATION_ERROR': 500
+      };
 
-      if (error.code === 'INVALID_CREDENTIALS') {
-        return res.status(401).json({
-          error: {
-            code: 'INVALID_CREDENTIALS',
-            message: error.message || 'Invalid email or password'
-          },
-          timestamp: new Date().toISOString()
-        });
-      }
+      const statusCode = errorMap[error.code] || 500;
+      const errorCode = error.code || 'INTERNAL_ERROR';
+      const errorMessage = error.message || 'An error occurred while retrieving user data';
 
-      if (error.code === 'FORBIDDEN') {
-        return res.status(403).json({
-          error: {
-            code: 'FORBIDDEN',
-            message: error.message || 'You do not have permission to access this user data'
-          },
-          timestamp: new Date().toISOString()
-        });
-      }
-
-      if (error.code === 'SERVER_CONFIGURATION_ERROR') {
-        return res.status(500).json({
-          error: {
-            code: 'SERVER_CONFIGURATION_ERROR',
-            message: error.message || 'Server configuration error'
-          },
-          timestamp: new Date().toISOString()
-        });
-      }
-      
-      return res.status(500).json({
+      return res.status(statusCode).json({
         error: {
-          code: error.code || 'INTERNAL_ERROR',
-          message: error.message || 'An error occurred while retrieving user data'
+          code: errorCode,
+          message: errorMessage
         },
         timestamp: new Date().toISOString()
       });
