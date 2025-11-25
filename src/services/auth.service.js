@@ -131,7 +131,7 @@ class AuthService {
 
   /**
    * Verify credentials and get user by username
-   * Returns user data if credentials match the username OR if user is admin (with valid password)
+   * Returns user data if credentials match the username OR if user is admin
    */
   async getUserByUsernameWithAuth(username, email, password) {
     try {
@@ -155,12 +155,38 @@ class AuthService {
         };
       }
 
+      // Always verify password using Firebase REST API
+      if (!process.env.FIREBASE_WEB_API_KEY) {
+        throw {
+          code: 'SERVER_CONFIGURATION_ERROR',
+          message: 'Server is not configured for password verification. Missing FIREBASE_WEB_API_KEY.'
+        };
+      }
+
+      // Verify password - this must succeed for both regular users and admins
+      try {
+        const axios = require('axios');
+        await axios.post(
+          `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_WEB_API_KEY}`,
+          {
+            email: email.trim(),
+            password: password,
+            returnSecureToken: true
+          }
+        );
+      } catch (error) {
+        // Password verification failed - reject even if user is admin
+        throw {
+          code: 'INVALID_CREDENTIALS',
+          message: 'Invalid email or password'
+        };
+      }
+
       // Check if credentials match the username OR if user is admin
       const customClaims = userRecord.customClaims || {};
       const isAdmin = customClaims.admin === true;
       const credentialsMatch = userRecord.uid === user.uid;
 
-      // If credentials don't match and user is not admin, deny access
       if (!credentialsMatch && !isAdmin) {
         throw {
           code: 'FORBIDDEN',
@@ -168,40 +194,9 @@ class AuthService {
         };
       }
 
-      // Verify password using Firebase REST API (required for both matching credentials and admin access)
-      if (process.env.FIREBASE_WEB_API_KEY) {
-        try {
-          const axios = require('axios');
-          await axios.post(
-            `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_WEB_API_KEY}`,
-            {
-              email: email.trim(),
-              password: password,
-              returnSecureToken: true
-            }
-          );
-        } catch (error) {
-          // Password verification failed - deny access even for admins
-          throw {
-            code: 'INVALID_CREDENTIALS',
-            message: 'Invalid email or password'
-          };
-        }
-      } else {
-        // If Web API Key is not available, we cannot verify password
-        // This is a security risk - deny access if credentials don't match
-        if (!credentialsMatch) {
-          throw {
-            code: 'MISSING_CONFIGURATION',
-            message: 'Password verification is required but not configured. Cannot verify admin access.'
-          };
-        }
-        console.warn('[AuthService] FIREBASE_WEB_API_KEY not set. Password verification skipped for matching credentials.');
-      }
-
       return user;
     } catch (error) {
-      if (error.code === 'USER_NOT_FOUND' || error.code === 'INVALID_CREDENTIALS' || error.code === 'FORBIDDEN' || error.code === 'MISSING_CONFIGURATION') {
+      if (error.code === 'USER_NOT_FOUND' || error.code === 'INVALID_CREDENTIALS' || error.code === 'FORBIDDEN') {
         throw error;
       }
       throw this.handleFirebaseError(error);
