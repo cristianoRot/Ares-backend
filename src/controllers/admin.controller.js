@@ -15,13 +15,8 @@ class AdminController {
       const result = await adminService.getAllUsers();
 
       return res.status(200).json({
-        message: 'Users retrieved successfully',
-        data: {
-          total: result.total,
-          users: result.users,
-          stats: result.stats
-        },
-        timestamp: new Date().toISOString()
+        total: result.total,
+        users: result.users
       });
     } catch (error) {
       console.error('Get all users error:', error);

@@ -427,33 +427,23 @@ curl -X POST https://api.aresofficial.net/admin/users \
 **Success Response (200):**
 ```json
 {
-  "message": "Users retrieved successfully",
-  "data": {
-    "total": 150,
-    "users": [
-      {
-        "uid": "qMlicKBQItcYCssl5nEo7r6Qccb2",
-        "email": "player@example.com",
-        "emailVerified": true,
-        "displayName": "player1",
-        "disabled": false,
-        "metadata": {
-          "creationTime": "2025-10-20T12:00:00.000Z",
-          "lastSignInTime": "2025-10-20T15:30:00.000Z"
-        },
-        "customClaims": {
-          "admin": false
-        }
+  "total": 150,
+  "users": [
+    {
+      "uid": "qMlicKBQItcYCssl5nEo7r6Qccb2",
+      "email": "player@example.com",
+      "emailVerified": true,
+      "displayName": "player1",
+      "disabled": false,
+      "metadata": {
+        "creationTime": "2025-10-20T12:00:00.000Z",
+        "lastSignInTime": "2025-10-20T15:30:00.000Z"
+      },
+      "customClaims": {
+        "admin": false
       }
-    ],
-    "stats": {
-      "total": 150,
-      "emailVerified": 120,
-      "emailNotVerified": 30,
-      "disabled": 2,
-      "admin": 5
     }
-  }
+  ]
 }
 ```
 
