@@ -7,6 +7,7 @@ node_modules/
 # Firebase Service Account Key (NEVER commit this!)
 serviceAccountKey.json
 *-firebase-adminsdk-*.json
+**/admin/*-firebase-adminsdk-*.json
 
 # Logs
 logs

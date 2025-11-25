@@ -164,6 +164,7 @@ Local: `http://localhost:3000`
 | `FORBIDDEN` | Admin privileges required |
 | `MISSING_CREDENTIALS` | Email and password are required |
 | `INVALID_CREDENTIALS` | Invalid email or password |
+| `MISSING_EMAIL` | targetUserEmail is required |
 
 #### Firebase Auth Error Codes
 
@@ -468,6 +469,60 @@ curl -X POST https://api.aresofficial.net/admin/users/count \
   "data": {
     "count": 150
   }
+}
+```
+
+---
+
+#### Admin - Set Admin Privileges
+
+**POST** `/admin/set-admin`
+
+Grant or revoke admin privileges for a user. Only accessible by existing admins.
+
+**Authentication Required:** Admin only (requires email and password in request body)
+
+**Request:**
+```bash
+curl -X POST https://api.aresofficial.net/admin/set-admin \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "admin@example.com",
+    "password": "adminpassword",
+    "targetUserEmail": "user@example.com",
+    "isAdmin": true
+  }'
+```
+
+**Request Body:**
+- `email` (string, required) - Admin user email (must be admin)
+- `password` (string, required) - Admin user password
+- `targetUserEmail` (string, required) - Email of user to grant/revoke admin privileges
+- `isAdmin` (boolean, required) - `true` to grant admin, `false` to revoke
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "message": "Admin privileges granted successfully for user@example.com",
+  "data": {
+    "uid": "firebase-user-id",
+    "email": "user@example.com",
+    "admin": true
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
+}
+```
+
+**Error Response (400):**
+```json
+{
+  "success": false,
+  "error": {
+    "code": "USER_NOT_FOUND",
+    "message": "User with email user@example.com not found"
+  },
+  "timestamp": "2025-10-20T12:00:00.000Z"
 }
 ```
 

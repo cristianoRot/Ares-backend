@@ -113,7 +113,41 @@ class AdminService {
   }
 
   /**
-   * Set admin custom claim for a user
+   * Set admin custom claim for a user by email
+   */
+  async setAdminClaimByEmail(targetUserEmail, isAdmin = true) {
+    try {
+      // Get user by email
+      const userRecord = await admin.auth().getUserByEmail(targetUserEmail.trim());
+      
+      // Set admin custom claim
+      await admin.auth().setCustomUserClaims(userRecord.uid, { admin: isAdmin });
+      
+      return {
+        success: true,
+        message: `Admin privileges ${isAdmin ? 'granted' : 'revoked'} successfully for ${targetUserEmail}`,
+        data: {
+          uid: userRecord.uid,
+          email: userRecord.email,
+          admin: isAdmin
+        }
+      };
+    } catch (error) {
+      if (error.code === 'auth/user-not-found') {
+        throw {
+          code: 'USER_NOT_FOUND',
+          message: `User with email ${targetUserEmail} not found`
+        };
+      }
+      throw {
+        code: 'ADMIN_ERROR',
+        message: error.message || 'Failed to set admin claim'
+      };
+    }
+  }
+
+  /**
+   * Set admin custom claim for a user by UID (legacy method)
    */
   async setAdminClaim(uid, isAdmin = true) {
     try {

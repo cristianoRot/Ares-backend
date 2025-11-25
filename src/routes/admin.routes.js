@@ -24,4 +24,12 @@ router.post('/users', adminAuth, (req, res) => adminController.getAllUsers(req, 
  */
 router.post('/users/count', adminAuth, (req, res) => adminController.getUsersCount(req, res));
 
+/**
+ * @route   POST /admin/set-admin
+ * @desc    Set or remove admin privileges for a user
+ * @access  Admin only (requires email and password in body)
+ * @body    { email: string, password: string, targetUserEmail: string, isAdmin: boolean }
+ */
+router.post('/set-admin', adminAuth, (req, res) => adminController.setAdmin(req, res));
+
 module.exports = router;
