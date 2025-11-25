@@ -169,13 +169,30 @@ class AuthService {
       // 5. Return user data if everything matches
       return user;
     } catch (error) {
-      if (error.code) {
-        throw error; // Re-throw our custom errors
+      // Re-throw our custom errors
+      if (error.code && (error.code === 'USER_NOT_FOUND' || error.code === 'FORBIDDEN' || error.code === 'SERVER_CONFIGURATION_ERROR')) {
+        throw error;
       }
-      // Firebase authentication error
-      if (error.response && error.response.data && error.response.data.error) {
-        throw { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' };
+      
+      // Handle axios/Firebase authentication errors
+      if (error.response) {
+        const errorData = error.response.data?.error;
+        if (errorData) {
+          // Firebase returns specific error messages for invalid credentials
+          if (errorData.message === 'EMAIL_NOT_FOUND' || 
+              errorData.message === 'INVALID_PASSWORD' ||
+              errorData.message === 'INVALID_EMAIL' ||
+              error.response.status === 400) {
+            throw { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' };
+          }
+        }
+        // Any 400 error from Firebase Auth is likely invalid credentials
+        if (error.response.status === 400) {
+          throw { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' };
+        }
       }
+      
+      // Default to invalid credentials for any other error
       throw { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' };
     }
   }
