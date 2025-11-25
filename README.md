@@ -379,7 +379,7 @@ curl -X DELETE https://api.aresofficial.net/auth/user \
 
 **POST** `/admin/users`
 
-Get all users with their Firebase Auth data and Firestore profiles.
+Get all users with their Firebase Auth data only (no Firestore profiles).
 
 **Authentication Required:** Admin only (requires email and password in request body)
 
@@ -415,13 +415,8 @@ curl -X POST https://api.aresofficial.net/admin/users \
           "creationTime": "2025-10-20T12:00:00.000Z",
           "lastSignInTime": "2025-10-20T15:30:00.000Z"
         },
-        "profile": {
-          "username": "player1",
-          "coins": 100,
-          "xp": 500,
-          "kills": 10,
-          "deaths": 5,
-          "matches": 15
+        "customClaims": {
+          "admin": false
         }
       }
     ],
@@ -430,8 +425,7 @@ curl -X POST https://api.aresofficial.net/admin/users \
       "emailVerified": 120,
       "emailNotVerified": 30,
       "disabled": 2,
-      "withProfile": 148,
-      "withoutProfile": 2
+      "admin": 5
     }
   }
 }
