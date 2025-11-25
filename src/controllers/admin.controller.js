@@ -15,7 +15,6 @@ class AdminController {
       const result = await adminService.getAllUsers();
 
       return res.status(200).json({
-        success: true,
         message: 'Users retrieved successfully',
         data: {
           total: result.total,
@@ -28,7 +27,6 @@ class AdminController {
       console.error('Get all users error:', error);
       
       return res.status(500).json({
-        success: false,
         error: {
           code: error.code || 'INTERNAL_ERROR',
           message: error.message || 'An error occurred while retrieving users'
@@ -47,7 +45,6 @@ class AdminController {
       const result = await adminService.getUsersCount();
 
       return res.status(200).json({
-        success: true,
         message: 'Users count retrieved successfully',
         data: {
           count: result.count
@@ -58,7 +55,6 @@ class AdminController {
       console.error('Get users count error:', error);
       
       return res.status(500).json({
-        success: false,
         error: {
           code: error.code || 'INTERNAL_ERROR',
           message: error.message || 'An error occurred while counting users'
@@ -80,7 +76,6 @@ class AdminController {
       // Validate input
       if (!targetUserEmail) {
         return res.status(400).json({
-          success: false,
           error: {
             code: 'MISSING_EMAIL',
             message: 'targetUserEmail is required in request body'
@@ -96,7 +91,6 @@ class AdminController {
       const result = await adminService.setAdminClaimByEmail(targetUserEmail, adminValue);
 
       return res.status(200).json({
-        success: true,
         message: result.message,
         data: result.data,
         timestamp: new Date().toISOString()
@@ -105,7 +99,6 @@ class AdminController {
       console.error('Set admin error:', error);
       
       return res.status(400).json({
-        success: false,
         error: {
           code: error.code || 'INTERNAL_ERROR',
           message: error.message || 'An error occurred while setting admin privileges'
@@ -127,7 +120,6 @@ class AdminController {
       // Validate input
       if (!targetUserEmail) {
         return res.status(400).json({
-          success: false,
           error: {
             code: 'MISSING_EMAIL',
             message: 'targetUserEmail is required in request body'
@@ -140,7 +132,6 @@ class AdminController {
       const result = await adminService.deleteUserByEmail(targetUserEmail);
 
       return res.status(200).json({
-        success: true,
         message: result.message,
         data: result.data,
         timestamp: new Date().toISOString()
@@ -149,7 +140,6 @@ class AdminController {
       console.error('Delete user error:', error);
       
       return res.status(400).json({
-        success: false,
         error: {
           code: error.code || 'INTERNAL_ERROR',
           message: error.message || 'An error occurred while deleting the user'
@@ -171,7 +161,6 @@ class AdminController {
       // Validate input
       if (!targetUserEmail) {
         return res.status(400).json({
-          success: false,
           error: {
             code: 'MISSING_EMAIL',
             message: 'targetUserEmail is required in request body'
@@ -187,7 +176,6 @@ class AdminController {
       const result = await adminService.setUserDisabled(targetUserEmail, disabledValue);
 
       return res.status(200).json({
-        success: true,
         message: result.message,
         data: result.data,
         timestamp: new Date().toISOString()
@@ -196,7 +184,6 @@ class AdminController {
       console.error('Set user disabled error:', error);
       
       return res.status(400).json({
-        success: false,
         error: {
           code: error.code || 'INTERNAL_ERROR',
           message: error.message || 'An error occurred while updating user status'
@@ -219,7 +206,6 @@ class AdminController {
       // Validate input
       if (!targetUserEmail) {
         return res.status(400).json({
-          success: false,
           error: {
             code: 'MISSING_EMAIL',
             message: 'targetUserEmail is required in request body'
@@ -245,7 +231,6 @@ class AdminController {
       // Validate that at least one profile field is provided
       if (!hasValidField) {
         return res.status(400).json({
-          success: false,
           error: {
             code: 'MISSING_FIELDS',
             message: `At least one profile field must be provided. Allowed fields: ${allowedFields.join(', ')}`
@@ -258,7 +243,6 @@ class AdminController {
       const profileResult = await adminService.updateUserProfile(targetUserEmail, profileData);
 
       return res.status(200).json({
-        success: true,
         message: 'User profile updated successfully',
         data: profileResult.data,
         timestamp: new Date().toISOString()
@@ -267,7 +251,6 @@ class AdminController {
       console.error('Update user error:', error);
       
       return res.status(400).json({
-        success: false,
         error: {
           code: error.code || 'INTERNAL_ERROR',
           message: error.message || 'An error occurred while updating the user profile'

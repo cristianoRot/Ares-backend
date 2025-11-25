@@ -14,7 +14,6 @@ const adminAuth = async (req, res, next) => {
     // Validate input
     if (!email || !password) {
       return res.status(400).json({
-        success: false,
         error: {
           code: 'MISSING_CREDENTIALS',
           message: 'Email and password are required in request body'
@@ -30,7 +29,6 @@ const adminAuth = async (req, res, next) => {
       userRecord = await admin.auth().getUserByEmail(email.trim());
     } catch (error) {
       return res.status(401).json({
-        success: false,
         error: {
           code: 'INVALID_CREDENTIALS',
           message: 'Invalid email or password'
@@ -55,7 +53,6 @@ const adminAuth = async (req, res, next) => {
       } catch (error) {
         // Password verification failed
         return res.status(401).json({
-          success: false,
           error: {
             code: 'INVALID_CREDENTIALS',
             message: 'Invalid email or password'
@@ -74,7 +71,6 @@ const adminAuth = async (req, res, next) => {
     
     if (!customClaims.admin && customClaims.admin !== true) {
       return res.status(403).json({
-        success: false,
         error: {
           code: 'FORBIDDEN',
           message: 'Admin privileges required to access this endpoint'
@@ -94,7 +90,6 @@ const adminAuth = async (req, res, next) => {
   } catch (error) {
     console.error('Admin auth middleware error:', error);
     return res.status(500).json({
-      success: false,
       error: {
         code: 'INTERNAL_ERROR',
         message: 'An error occurred during authentication'

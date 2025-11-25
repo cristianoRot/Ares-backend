@@ -44,7 +44,6 @@ app.use(requestLogger);
 app.get('/', (req, res) => {
   const baseUrl = process.env.BASE_URL || req.protocol + '://' + req.get('host');
   res.json({
-    success: true,
     message: 'Welcome to Ares API',
     version: '2.0.0',
     baseUrl: baseUrl,
@@ -80,14 +79,12 @@ app.get('/', (req, res) => {
 // Legacy endpoints (mantenuti per compatibilità)
 app.get('/name', (req, res) => {
   res.json({
-    success: true,
     name: 'Ares'
   });
 });
 
 app.get('/status', (req, res) => {
   res.json({
-    success: true,
     status: 'online',
     timestamp: new Date().toISOString(),
     uptime: process.uptime()
@@ -102,7 +99,6 @@ app.use('/', validateFirebase, apiRoutes);
 // 404 handler
 app.use((req, res) => {
   res.status(404).json({
-    success: false,
     error: {
       code: 'ENDPOINT_NOT_FOUND',
       message: 'The requested endpoint does not exist',

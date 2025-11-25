@@ -9,7 +9,6 @@ const errorHandler = (err, req, res, next) => {
   // Validation error
   if (err.name === 'ValidationError') {
     return res.status(400).json({
-      success: false,
       error: {
         code: 'VALIDATION_ERROR',
         message: 'Validation failed',
@@ -22,7 +21,6 @@ const errorHandler = (err, req, res, next) => {
   // Firebase error
   if (err.code && err.code.startsWith('auth/')) {
     return res.status(400).json({
-      success: false,
       error: {
         code: err.code,
         message: err.message
@@ -33,7 +31,6 @@ const errorHandler = (err, req, res, next) => {
 
   // Generic server error
   res.status(err.status || 500).json({
-    success: false,
     error: {
       code: 'INTERNAL_ERROR',
       message: err.message || 'Internal server error'

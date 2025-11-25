@@ -19,7 +19,6 @@ class AuthController {
       const validation = UserModel.validate({ email, password, username });
       if (!validation.isValid) {
         return res.status(400).json({
-          success: false,
           error: {
             code: 'VALIDATION_ERROR',
             message: 'Invalid input data',
@@ -33,7 +32,6 @@ class AuthController {
       const result = await authService.register(email, password, username);
 
       return res.status(201).json({
-        success: true,
         message: 'User registered successfully',
         data: {
           uid: result.user.uid,
@@ -47,7 +45,6 @@ class AuthController {
       console.error('User registration error:', error);
       
       return res.status(400).json({
-        success: false,
         error: {
           code: error.code || 'AUTH_ERROR',
           message: error.message || 'An error occurred during registration'
@@ -67,7 +64,6 @@ class AuthController {
 
       if (!uid) {
         return res.status(400).json({
-          success: false,
           error: {
             code: 'MISSING_UID',
             message: 'User UID is required'
@@ -80,7 +76,6 @@ class AuthController {
 
       if (!user) {
         return res.status(404).json({
-          success: false,
           error: {
             code: 'USER_NOT_FOUND',
             message: 'User not found'
@@ -90,7 +85,6 @@ class AuthController {
       }
 
       return res.status(200).json({
-        success: true,
         data: user.toFirestore(),
         timestamp: new Date().toISOString()
       });
@@ -98,7 +92,6 @@ class AuthController {
       console.error('Get user error:', error);
       
       return res.status(500).json({
-        success: false,
         error: {
           code: 'INTERNAL_ERROR',
           message: 'An error occurred while retrieving user data'
@@ -121,7 +114,6 @@ class AuthController {
       // Validate input
       if (!username) {
         return res.status(400).json({
-          success: false,
           error: {
             code: 'MISSING_USERNAME',
             message: 'Username is required in URL path'
@@ -132,7 +124,6 @@ class AuthController {
 
       if (!email || !password) {
         return res.status(400).json({
-          success: false,
           error: {
             code: 'MISSING_CREDENTIALS',
             message: 'Email and password are required in request body'
@@ -145,7 +136,6 @@ class AuthController {
       const user = await authService.getUserByUsernameWithAuth(username, email, password);
 
       return res.status(200).json({
-        success: true,
         data: user.toFirestore(),
         timestamp: new Date().toISOString()
       });
@@ -154,7 +144,6 @@ class AuthController {
       
       if (error.code === 'USER_NOT_FOUND') {
         return res.status(404).json({
-          success: false,
           error: {
             code: 'USER_NOT_FOUND',
             message: error.message || 'User not found'
@@ -165,7 +154,6 @@ class AuthController {
 
       if (error.code === 'INVALID_CREDENTIALS') {
         return res.status(401).json({
-          success: false,
           error: {
             code: 'INVALID_CREDENTIALS',
             message: error.message || 'Invalid email or password'
@@ -176,7 +164,6 @@ class AuthController {
 
       if (error.code === 'FORBIDDEN') {
         return res.status(403).json({
-          success: false,
           error: {
             code: 'FORBIDDEN',
             message: error.message || 'You do not have permission to access this user data'
@@ -186,7 +173,6 @@ class AuthController {
       }
       
       return res.status(500).json({
-        success: false,
         error: {
           code: 'INTERNAL_ERROR',
           message: 'An error occurred while retrieving user data'
@@ -207,7 +193,6 @@ class AuthController {
       // Validate input
       if (!email || !password) {
         return res.status(400).json({
-          success: false,
           error: {
             code: 'MISSING_CREDENTIALS',
             message: 'Email and password are required in request body'
@@ -220,7 +205,6 @@ class AuthController {
       const result = await authService.deleteUserByCredentials(email, password);
 
       return res.status(200).json({
-        success: true,
         message: result.message,
         timestamp: new Date().toISOString()
       });
@@ -228,7 +212,6 @@ class AuthController {
       console.error('Delete user error:', error);
       
       return res.status(400).json({
-        success: false,
         error: {
           code: error.code || 'INTERNAL_ERROR',
           message: error.message || 'An error occurred while deleting the user'

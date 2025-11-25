@@ -126,7 +126,6 @@ Local: `http://localhost:3000`
 
 ```json
 {
-  "success": true,
   "message": "Operation completed successfully",
   "data": { },
   "timestamp": "2025-10-20T12:00:00.000Z"
@@ -137,7 +136,6 @@ Local: `http://localhost:3000`
 
 ```json
 {
-  "success": false,
   "error": {
     "code": "ERROR_CODE",
     "message": "Human-readable error description"
@@ -190,7 +188,6 @@ curl https://api.aresofficial.net/
 Response:
 ```json
 {
-  "success": true,
   "message": "Welcome to Ares API",
   "version": "2.0.0",
   "status": "online",
@@ -247,7 +244,6 @@ curl -X POST https://api.aresofficial.net/auth/register \
 **Success Response (201):**
 ```json
 {
-  "success": true,
   "message": "User registered successfully",
   "data": {
     "uid": "qMlicKBQItcYCssl5nEo7r6Qccb2",
@@ -273,7 +269,6 @@ curl -X POST https://api.aresofficial.net/auth/register \
 **Error Response (400):**
 ```json
 {
-  "success": false,
   "error": {
     "code": "VALIDATION_ERROR",
     "message": "Invalid input data",
@@ -314,7 +309,6 @@ curl -X POST https://api.aresofficial.net/auth/user/player1 \
 **Success Response (200):**
 ```json
 {
-  "success": true,
   "data": {
     "username": "player1",
     "email": "player@example.com",
@@ -335,7 +329,6 @@ curl -X POST https://api.aresofficial.net/auth/user/player1 \
 **Error Response (401):**
 ```json
 {
-  "success": false,
   "error": {
     "code": "INVALID_CREDENTIALS",
     "message": "Invalid email or password"
@@ -347,7 +340,6 @@ curl -X POST https://api.aresofficial.net/auth/user/player1 \
 **Error Response (403):**
 ```json
 {
-  "success": false,
   "error": {
     "code": "FORBIDDEN",
     "message": "You do not have permission to access this user data"
@@ -359,7 +351,6 @@ curl -X POST https://api.aresofficial.net/auth/user/player1 \
 **Error Response (404):**
 ```json
 {
-  "success": false,
   "error": {
     "code": "USER_NOT_FOUND",
     "message": "User not found"
@@ -393,7 +384,6 @@ curl -X DELETE https://api.aresofficial.net/auth/user \
 **Success Response (200):**
 ```json
 {
-  "success": true,
   "message": "User deleted successfully",
   "timestamp": "2025-10-20T12:00:00.000Z"
 }
@@ -402,7 +392,6 @@ curl -X DELETE https://api.aresofficial.net/auth/user \
 **Error Response (400):**
 ```json
 {
-  "success": false,
   "error": {
     "code": "INVALID_CREDENTIALS",
     "message": "Invalid email or password"
@@ -438,7 +427,6 @@ curl -X POST https://api.aresofficial.net/admin/users \
 **Success Response (200):**
 ```json
 {
-  "success": true,
   "message": "Users retrieved successfully",
   "data": {
     "total": 150,
@@ -496,7 +484,6 @@ curl -X POST https://api.aresofficial.net/admin/users/count \
 **Success Response (200):**
 ```json
 {
-  "success": true,
   "message": "Users count retrieved successfully",
   "data": {
     "count": 150
@@ -535,7 +522,6 @@ curl -X POST https://api.aresofficial.net/admin/set-admin \
 **Success Response (200):**
 ```json
 {
-  "success": true,
   "message": "Admin privileges granted successfully for user@example.com",
   "data": {
     "uid": "firebase-user-id",
@@ -549,7 +535,6 @@ curl -X POST https://api.aresofficial.net/admin/set-admin \
 **Error Response (400):**
 ```json
 {
-  "success": false,
   "error": {
     "code": "USER_NOT_FOUND",
     "message": "User with email user@example.com not found"
@@ -587,7 +572,6 @@ curl -X DELETE https://api.aresofficial.net/admin/user \
 **Success Response (200):**
 ```json
 {
-  "success": true,
   "message": "User user@example.com deleted successfully",
   "data": {
     "uid": "firebase-user-id",
@@ -628,7 +612,6 @@ curl -X POST https://api.aresofficial.net/admin/user/disable \
 **Success Response (200):**
 ```json
 {
-  "success": true,
   "message": "User user@example.com disabled successfully",
   "data": {
     "uid": "firebase-user-id",
@@ -685,7 +668,6 @@ curl -X POST https://api.aresofficial.net/admin/user/update \
 **Success Response (200):**
 ```json
 {
-  "success": true,
   "message": "User profile updated successfully",
   "data": {
     "uid": "firebase-user-id",
