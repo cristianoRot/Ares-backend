@@ -208,12 +208,12 @@ class AdminController {
 
   /**
    * POST /admin/user/update
-   * Update user properties (displayName, customClaims, profile data)
+   * Update user profile data in Firestore only (coins, xp, kills, etc.)
    * Only accessible by existing admins
    */
   async updateUser(req, res) {
     try {
-      const { targetUserEmail, displayName, customClaims, profile } = req.body;
+      const { targetUserEmail, profile } = req.body;
 
       // Validate input
       if (!targetUserEmail) {
@@ -227,42 +227,25 @@ class AdminController {
         });
       }
 
-      const results = {};
-
-      // Update display name if provided
-      if (displayName !== undefined) {
-        const displayNameResult = await adminService.updateUserDisplayName(targetUserEmail, displayName);
-        results.displayName = displayNameResult.data;
-      }
-
-      // Update custom claims if provided
-      if (customClaims !== undefined && typeof customClaims === 'object') {
-        const claimsResult = await adminService.updateUserCustomClaims(targetUserEmail, customClaims);
-        results.customClaims = claimsResult.data;
-      }
-
-      // Update profile data if provided (coins, xp, kills, etc.)
-      if (profile !== undefined && typeof profile === 'object') {
-        const profileResult = await adminService.updateUserProfile(targetUserEmail, profile);
-        results.profile = profileResult.data;
-      }
-
-      // If nothing was updated
-      if (Object.keys(results).length === 0) {
+      // Validate profile data
+      if (!profile || typeof profile !== 'object') {
         return res.status(400).json({
           success: false,
           error: {
-            code: 'MISSING_FIELDS',
-            message: 'At least one field (displayName, customClaims, or profile) must be provided'
+            code: 'MISSING_PROFILE',
+            message: 'profile object is required in request body'
           },
           timestamp: new Date().toISOString()
         });
       }
 
+      // Update profile data (coins, xp, kills, etc.)
+      const profileResult = await adminService.updateUserProfile(targetUserEmail, profile);
+
       return res.status(200).json({
         success: true,
-        message: 'User updated successfully',
-        data: results,
+        message: 'User profile updated successfully',
+        data: profileResult.data,
         timestamp: new Date().toISOString()
       });
     } catch (error) {
@@ -272,7 +255,7 @@ class AdminController {
         success: false,
         error: {
           code: error.code || 'INTERNAL_ERROR',
-          message: error.message || 'An error occurred while updating the user'
+          message: error.message || 'An error occurred while updating the user profile'
         },
         timestamp: new Date().toISOString()
       });

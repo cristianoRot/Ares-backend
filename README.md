@@ -607,7 +607,7 @@ curl -X POST https://api.aresofficial.net/admin/user/disable \
 
 **POST** `/admin/user/update`
 
-Update user properties (displayName, customClaims, profile data). Only accessible by existing admins.
+Update user profile data in Firestore only (coins, xp, kills, etc.). Only accessible by existing admins.
 
 **Authentication Required:** Admin only (requires email and password in request body)
 
@@ -619,11 +619,6 @@ curl -X POST https://api.aresofficial.net/admin/user/update \
     "email": "admin@example.com",
     "password": "adminpassword",
     "targetUserEmail": "user@example.com",
-    "displayName": "New Display Name",
-    "customClaims": {
-      "role": "premium",
-      "level": 10
-    },
     "profile": {
       "coins": 10000,
       "xp": 5000,
@@ -639,9 +634,7 @@ curl -X POST https://api.aresofficial.net/admin/user/update \
 - `email` (string, required) - Admin user email (must be admin)
 - `password` (string, required) - Admin user password
 - `targetUserEmail` (string, required) - Email of user to update
-- `displayName` (string, optional) - New display name (Firebase Auth)
-- `customClaims` (object, optional) - Custom claims to set/update (Firebase Auth)
-- `profile` (object, optional) - Profile data to update (Firestore):
+- `profile` (object, required) - Profile data to update (Firestore):
   - `coins` (number, optional) - Update coins
   - `xp` (number, optional) - Update experience points
   - `kills` (number, optional) - Update kills count
@@ -656,35 +649,19 @@ curl -X POST https://api.aresofficial.net/admin/user/update \
 ```json
 {
   "success": true,
-  "message": "User updated successfully",
+  "message": "User profile updated successfully",
   "data": {
-    "displayName": {
-      "uid": "firebase-user-id",
-      "email": "user@example.com",
-      "displayName": "New Display Name"
-    },
-    "customClaims": {
-      "uid": "firebase-user-id",
-      "email": "user@example.com",
-      "customClaims": {
-        "admin": false,
-        "role": "premium",
-        "level": 10
-      }
-    },
+    "uid": "firebase-user-id",
+    "email": "user@example.com",
     "profile": {
-      "uid": "firebase-user-id",
-      "email": "user@example.com",
-      "profile": {
-        "username": "player1",
-        "coins": 10000,
-        "xp": 5000,
-        "kills": 100,
-        "deaths": 50,
-        "matches": 25,
-        "skinTag": 5,
-        "updatedAt": "2025-10-20T12:00:00.000Z"
-      }
+      "username": "player1",
+      "coins": 10000,
+      "xp": 5000,
+      "kills": 100,
+      "deaths": 50,
+      "matches": 25,
+      "skinTag": 5,
+      "updatedAt": "2025-10-20T12:00:00.000Z"
     }
   },
   "timestamp": "2025-10-20T12:00:00.000Z"
