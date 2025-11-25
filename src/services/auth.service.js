@@ -130,19 +130,28 @@ class AuthService {
   }
 
   /**
-   * Verify password using Firebase REST API
+   * Get user by username with credential verification
+   * Verifies email and password before returning user data
    */
-  async verifyPassword(email, password) {
+  async getUserByUsernameWithAuth(username, email, password) {
+    // 1. Check if FIREBASE_WEB_API_KEY is configured
     if (!process.env.FIREBASE_WEB_API_KEY) {
       throw {
         code: 'SERVER_CONFIGURATION_ERROR',
-        message: 'Server is not configured for password verification. Missing FIREBASE_WEB_API_KEY.'
+        message: 'Server is not configured for password verification'
       };
     }
 
+    // 2. Get user by username from Firestore
+    const user = await this.getUserByUsername(username);
+    if (!user) {
+      throw { code: 'USER_NOT_FOUND', message: 'User not found' };
+    }
+
+    // 3. Verify credentials using Firebase REST API
+    const axios = require('axios');
     try {
-      const axios = require('axios');
-      await axios.post(
+      const response = await axios.post(
         `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.FIREBASE_WEB_API_KEY}`,
         {
           email: email.trim(),
@@ -150,42 +159,25 @@ class AuthService {
           returnSecureToken: true
         }
       );
-    } catch (error) {
-      throw {
-        code: 'INVALID_CREDENTIALS',
-        message: 'Invalid email or password'
-      };
-    }
-  }
 
-  /**
-   * Verify credentials and get user by username
-   * Returns user data only if credentials match the username (no admin bypass)
-   */
-  async getUserByUsernameWithAuth(username, email, password) {
-    // Get user by username
-    const user = await this.getUserByUsername(username);
-    if (!user) {
-      throw { code: 'USER_NOT_FOUND', message: 'User not found' };
-    }
+      // 4. Verify that the authenticated user matches the requested username
+      const authenticatedUid = response.data.localId;
+      if (authenticatedUid !== user.uid) {
+        throw { code: 'FORBIDDEN', message: 'Credentials do not match the requested username' };
+      }
 
-    // Get Firebase Auth user record by email
-    let userRecord;
-    try {
-      userRecord = await admin.auth().getUserByEmail(email.trim());
+      // 5. Return user data if everything matches
+      return user;
     } catch (error) {
+      if (error.code) {
+        throw error; // Re-throw our custom errors
+      }
+      // Firebase authentication error
+      if (error.response && error.response.data && error.response.data.error) {
+        throw { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' };
+      }
       throw { code: 'INVALID_CREDENTIALS', message: 'Invalid email or password' };
     }
-
-    // Verify password
-    await this.verifyPassword(email, password);
-
-    // Verify that credentials match the username
-    if (userRecord.uid !== user.uid) {
-      throw { code: 'FORBIDDEN', message: 'You do not have permission to access this user data' };
-    }
-
-    return user;
   }
 
   /**

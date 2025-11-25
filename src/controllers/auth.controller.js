@@ -104,7 +104,7 @@ class AuthController {
   /**
    * POST /auth/user/:username
    * Get user data by username (requires email and password in body)
-   * Accessible only if credentials match the username OR if user is admin
+   * Verifies credentials before returning user data
    */
   async getUserByUsername(req, res) {
     try {
@@ -132,7 +132,7 @@ class AuthController {
         });
       }
 
-      // Get user with authentication check
+      // Get user with credential verification
       const user = await authService.getUserByUsernameWithAuth(username, email, password);
 
       return res.status(200).json({
@@ -141,23 +141,21 @@ class AuthController {
       });
     } catch (error) {
       console.error('Get user error:', error);
-      
+
       // Map error codes to HTTP status codes
-      const errorMap = {
+      const statusMap = {
         'USER_NOT_FOUND': 404,
         'INVALID_CREDENTIALS': 401,
         'FORBIDDEN': 403,
         'SERVER_CONFIGURATION_ERROR': 500
       };
 
-      const statusCode = errorMap[error.code] || 500;
-      const errorCode = error.code || 'INTERNAL_ERROR';
-      const errorMessage = error.message || 'An error occurred while retrieving user data';
+      const statusCode = statusMap[error.code] || 500;
 
       return res.status(statusCode).json({
         error: {
-          code: errorCode,
-          message: errorMessage
+          code: error.code || 'INTERNAL_ERROR',
+          message: error.message || 'An error occurred while retrieving user data'
         },
         timestamp: new Date().toISOString()
       });

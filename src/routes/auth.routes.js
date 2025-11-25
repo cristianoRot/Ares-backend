@@ -18,7 +18,7 @@ router.post('/register', (req, res) => authController.register(req, res));
 /**
  * @route   POST /auth/user/:username
  * @desc    Get user data by username (requires email and password in body)
- * @access  Public (requires valid credentials or admin privileges)
+ * @access  Public (requires valid credentials matching the username)
  * @body    { email: string, password: string }
  */
 router.post('/user/:username', (req, res) => authController.getUserByUsername(req, res));
